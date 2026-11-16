@@ -15,6 +15,7 @@ public final class Commands {
             plugin.reloadAll();
             plugin.messages().send(sender, "admin.reloaded", "ms", System.currentTimeMillis() - start);
         });
+        PlayerCommands.register(plugin, tree);
         GiverCommands.register(plugin, tree);
     }
 }

@@ -1,1 +1,1093 @@
-# placeholder
+# =================================================================================================================
+#  QuestGiver - quests.yml
+#  Every quest, transcribed from the design plan's quest catalog. Each level of a quest line is its own quest.
+#  Run /quest reload after editing. Broken entries are skipped with a warning in the console, and quests that pay
+#  more than the dragon egg bounty ($5,000 / 20 levels) are reported at load time.
+#
+#  Quest keys
+#    name:          display name (colour codes allowed)
+#    description:   one line shown in menus (generated from the objectives if left out)
+#    pool:          town (offered by town givers with "pool: town" in givers.yml), wandering (wandering givers only),
+#                   or any custom pool name to split quests between several town givers
+#    event:         seasonal event id from config.yml (e.g. winterfest): the quest only appears while it runs
+#    tier:          easy | medium | hard | legendary | bounty. Tiers unlock as players finish quests (config.yml)
+#    rarity:        fetch quests only: common | rare | legendary. Rare and legendary ask for confirmation first
+#    line / level:  quest lines level up instead of repeating; level N unlocks after level N-1 is finished
+#    requires:      quest chains: these quests must be finished before this one is offered
+#    squad:         squad-only quest: needs a squad of at least this many members (see squad.* in config.yml)
+#    icon:          menu icon (defaults: advancement icon, mob spawn egg, or the fetched item)
+#    time-limit-minutes:    real-time limit after accepting (wandering quests default to config.yml's value)
+#    bounty-cooldown-days:  makes the quest a repeatable bounty with a per-player cooldown (dragon egg)
+#
+#  Objectives (a quest is done when every objective is done)
+#    {type: advancement, key: story/mine_stone}             earn a vanilla advancement (never offered if owned)
+#    {type: kill, entity: skeleton, amount: 3}              entity may be a list; hostile: true = any hostile mob
+#        extra flags: night: true (all kills in one night), captain: true (raid/patrol captains),
+#                     resummoned: true (only Ender Dragons re-summoned after the first kill)
+#    {type: fetch, item: wheat, amount: 64}                 items are taken on turn-in; item may be a list or a
+#        group ("#pottery_sherds", or an item tag like "#minecraft:logs"); distinct: true counts different
+#        types; with-bees: true needs bee nests with bees inside
+#    {type: visit, biomes: [snowy_plains, ice_spikes]}      visit every listed biome
+#    {type: breed, entity: goat, amount: 10}  {type: build, entity: snow_golem}  {type: cure, amount: 1}
+#    {type: complete, event: winterfest, amount: 6}         finish N other quests of that event (same year)
+#    Every objective takes an optional label: "Text" for the progress tracker.
+#
+#  Rewards
+#    money: Vault/EssentialsX money      xp: levels added on top of the current level
+#    items: ["bread 16", "enchanted_book efficiency:2", "golden_chestplate protection:5",
+#            "potion 3 potion:night_vision", "leather_boots color:red",
+#            {item: "iron_sword sharpness:4", name: "&cKrampus's Claw", lore: ["&7..."]},
+#            {random: [music_disc_cat, music_disc_13], picks: 2}]
+#       Enchantments above the vanilla maximum (Protection V) or on unusual items (Silk Touch shears) are given
+#       exactly as written. Reward items are tagged so they can't be handed back in for fetch quests.
+#    commands: ["eco give {player} 10"]  console commands; {player}, {uuid}, {quest}
+#    reputation: 5                       cosmetic points (defaults by tier in config.yml)
+#  The death penalty (config.yml) docks money and XP, never loot.
+# =================================================================================================================
+quests:
+
+  # ---------------------------------------------------------------------------------------------------------------
+  #  TOWN - Advancement quests (1-33)
+  # ---------------------------------------------------------------------------------------------------------------
+  stone_age:                                   # 1
+    name: Stone Age
+    description: Earn "Stone Age"
+    tier: easy
+    objectives: [{type: advancement, key: story/mine_stone}]
+    rewards: {money: 100, xp: 1, items: ["bread 16"]}
+  getting_an_upgrade:                          # 2
+    name: Getting an Upgrade
+    description: Earn "Getting an Upgrade"
+    tier: easy
+    objectives: [{type: advancement, key: story/upgrade_tools}]
+    rewards: {money: 100, xp: 1, items: ["iron_pickaxe"]}
+  acquire_hardware:                            # 3
+    name: Acquire Hardware
+    description: Earn "Acquire Hardware"
+    tier: easy
+    objectives: [{type: advancement, key: story/smelt_iron}]
+    rewards: {money: 150, xp: 1, items: ["iron_ingot 8"]}
+  suit_up:                                     # 4
+    name: Suit Up
+    description: Earn "Suit Up"
+    tier: easy
+    objectives: [{type: advancement, key: story/obtain_armor}]
+    rewards: {money: 150, xp: 1, items: ["iron_helmet"]}
+  monster_hunter:                              # 5
+    name: Monster Hunter
+    description: Earn "Monster Hunter"
+    tier: easy
+    objectives: [{type: advancement, key: adventure/kill_a_mob}]
+    rewards: {money: 100, xp: 1, items: ["torch 16"]}
+  sweet_dreams:                                # 6
+    name: Sweet Dreams
+    description: Earn "Sweet Dreams"
+    tier: easy
+    objectives: [{type: advancement, key: adventure/sleep_in_bed}]
+    rewards: {money: 100, xp: 1, items: ["cooked_beef 8"]}
+  bee_our_guest:                               # 7
+    name: Bee Our Guest
+    description: Earn "Bee Our Guest"
+    tier: easy
+    objectives: [{type: advancement, key: husbandry/safely_harvest_honey}]
+    rewards: {money: 200, xp: 2, items: ["honey_bottle 4"]}
+  diamonds:                                    # 8
+    name: Diamonds!
+    description: Earn "Diamonds!"
+    tier: medium
+    objectives: [{type: advancement, key: story/mine_diamond}]
+    rewards: {money: 400, xp: 3, items: ["enchanted_book efficiency:2"]}
+  enchanter:                                   # 9
+    name: Enchanter
+    description: Earn "Enchanter"
+    tier: medium
+    objectives: [{type: advancement, key: story/enchant_item}]
+    rewards: {money: 400, xp: 3, items: ["lapis_lazuli 16", "bookshelf 8"]}
+  hired_help:                                  # 10
+    name: Hired Help
+    description: Earn "Hired Help"
+    tier: medium
+    objectives: [{type: advancement, key: adventure/summon_iron_golem}]
+    rewards: {money: 500, xp: 3, items: ["iron_ingot 16"]}
+  the_healing_power_of_friendship:             # 11
+    name: The Healing Power of Friendship
+    description: Earn it with an axolotl
+    tier: medium
+    objectives: [{type: advancement, key: husbandry/kill_axolotl_target}]
+    rewards: {money: 400, xp: 3, items: ["enchanted_book respiration:2"]}
+  total_beelocation:                           # 12
+    name: Total Beelocation
+    description: Earn "Total Beelocation"
+    tier: medium
+    objectives: [{type: advancement, key: husbandry/silk_touch_nest}]
+    rewards: {money: 500, xp: 3, items: ["shears silk_touch:1"]}
+  we_need_to_go_deeper:                        # 13 - starts the Nether chain
+    name: We Need to Go Deeper
+    description: Enter the Nether
+    tier: medium
+    objectives: [{type: advancement, key: story/enter_the_nether}]
+    rewards: {money: 700, xp: 3, items: ["golden_chestplate protection:5"]}
+  a_terrible_fortress:                         # 14
+    name: A Terrible Fortress
+    description: Find a Nether Fortress
+    tier: medium
+    requires: [we_need_to_go_deeper]
+    objectives: [{type: advancement, key: nether/find_fortress}]
+    rewards: {money: 600, xp: 4, items: ["blaze_powder 8"]}
+  into_fire:                                   # 15
+    name: Into Fire
+    description: Get a blaze rod
+    tier: medium
+    requires: [a_terrible_fortress]
+    objectives: [{type: advancement, key: nether/obtain_blaze_rod}]
+    rewards: {money: 600, xp: 4, items: ["enchanted_book fire_protection:3"]}
+  hot_tourist_destinations:                    # 16
+    name: Hot Tourist Destinations
+    description: Visit all Nether biomes
+    tier: medium
+    objectives: [{type: advancement, key: nether/explore_nether}]
+    rewards: {money: 800, xp: 5, items: ["gold_block 4"]}
+  sniper_duel:                                 # 17
+    name: Sniper Duel
+    description: Earn "Sniper Duel"
+    tier: medium
+    objectives: [{type: advancement, key: adventure/sniper_duel}]
+    rewards: {money: 500, xp: 3, items: ["enchanted_book power:3"]}
+  sneak_100:                                   # 18
+    name: Sneak 100
+    description: Sneak past a sculk sensor
+    tier: medium
+    objectives: [{type: advancement, key: adventure/avoid_vibration}]
+    rewards: {money: 500, xp: 3, items: ["enchanted_book swift_sneak:1"]}
+  minecraft_trials_edition:                    # 19
+    name: "Minecraft: Trial(s) Edition"
+    description: Enter a Trial Chamber
+    tier: medium
+    objectives: [{type: advancement, key: adventure/minecraft_trials_edition}]
+    rewards: {money: 600, xp: 4, items: ["trial_key 2"]}
+  cover_me_with_diamonds:                      # 20
+    name: Cover Me with Diamonds
+    description: Full diamond armor
+    tier: hard
+    objectives: [{type: advancement, key: story/shiny_gear}]
+    rewards: {money: 1000, xp: 5, items: ["enchanted_book unbreaking:3"]}
+  return_to_sender:                            # 21
+    name: Return to Sender
+    description: Kill a ghast with its fireball
+    tier: hard
+    objectives: [{type: advancement, key: nether/return_to_sender}]
+    rewards: {money: 1000, xp: 5, items: ["enchanted_book flame:1"]}
+  eye_spy:                                     # 22
+    name: Eye Spy
+    description: Enter a stronghold
+    tier: hard
+    objectives: [{type: advancement, key: story/follow_ender_eye}]
+    rewards: {money: 1200, xp: 6, items: ["ender_pearl 8"]}
+  arbalistic:                                  # 23
+    name: Arbalistic
+    description: Earn "Arbalistic"
+    tier: hard
+    objectives: [{type: advancement, key: adventure/arbalistic}]
+    rewards: {money: 1200, xp: 6, items: ["crossbow multishot:1"]}
+  remote_getaway:                              # 24
+    name: Remote Getaway
+    description: Use an End Gateway
+    tier: hard
+    requires: [free_the_end]
+    objectives: [{type: advancement, key: end/enter_end_gateway}]
+    rewards: {money: 1200, xp: 6, items: ["ender_chest 4"]}
+  the_end:                                     # 25 - starts the End chain
+    name: The End?
+    description: Enter the End
+    tier: hard
+    objectives: [{type: advancement, key: story/enter_the_end}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book feather_falling:4"]}
+  hero_of_the_village:                         # 26
+    name: Hero of the Village
+    description: Win a raid
+    tier: hard
+    objectives: [{type: advancement, key: adventure/hero_of_the_village}]
+    rewards: {money: 1500, xp: 8, items: ["emerald 16", "totem_of_undying"]}
+  over_overkill:                               # 27
+    name: Over-Overkill
+    description: 50 hearts of damage with a mace
+    tier: hard
+    objectives: [{type: advancement, key: adventure/overoverkill}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book density:4"]}
+  free_the_end:                                # 28
+    name: Free the End
+    description: Kill the Ender Dragon
+    tier: legendary
+    requires: [the_end]
+    objectives: [{type: advancement, key: end/kill_dragon}]
+    rewards: {money: 3000, xp: 12, items: ["enchanted_book fortune:3"]}
+  skys_the_limit:                              # 29
+    name: Sky's the Limit
+    description: Find elytra
+    tier: legendary
+    requires: [free_the_end]
+    objectives: [{type: advancement, key: end/elytra}]
+    rewards: {money: 2500, xp: 10, items: ["firework_rocket 32", "enchanted_book unbreaking:3"]}
+  serious_dedication:                          # 30
+    name: Serious Dedication
+    description: Netherite hoe
+    tier: legendary
+    objectives: [{type: advancement, key: husbandry/obtain_netherite_hoe}]
+    rewards: {money: 3000, xp: 12, items: ["enchanted_book mending:1"]}
+  monsters_hunted:                             # 31
+    name: Monsters Hunted
+    description: Kill every hostile mob type
+    tier: legendary
+    objectives: [{type: advancement, key: adventure/kill_all_mobs}]
+    rewards: {money: 3500, xp: 15, items: ["diamond_sword looting:3"]}
+  adventuring_time:                            # 32
+    name: Adventuring Time
+    description: Visit every biome
+    tier: legendary
+    objectives: [{type: advancement, key: adventure/adventuring_time}]
+    rewards: {money: 3500, xp: 15, items: ["enchanted_book mending:1"]}
+  how_did_we_get_here:                         # 33
+    name: How Did We Get Here?
+    description: Have every effect at once
+    tier: legendary
+    objectives: [{type: advancement, key: nether/all_effects}]
+    rewards: {money: 3500, xp: 15, items: ["diamond_block 2"]}
+
+  # ---------------------------------------------------------------------------------------------------------------
+  #  TOWN - Kill quests (34-82)
+  # ---------------------------------------------------------------------------------------------------------------
+  skeleton_hunter_1:                           # 34
+    name: Skeleton Hunter I
+    tier: easy
+    line: skeleton_hunter
+    level: 1
+    objectives: [{type: kill, entity: skeleton, amount: 3}]
+    rewards: {money: 100, xp: 1, items: ["arrow 16"]}
+  skeleton_hunter_2:                           # 35
+    name: Skeleton Hunter II
+    tier: easy
+    line: skeleton_hunter
+    level: 2
+    objectives: [{type: kill, entity: skeleton, amount: 10}]
+    rewards: {money: 250, xp: 2, items: ["bow"]}
+  skeleton_hunter_3:                           # 36
+    name: Skeleton Hunter III
+    tier: medium
+    line: skeleton_hunter
+    level: 3
+    objectives: [{type: kill, entity: skeleton, amount: 25}]
+    rewards: {money: 500, xp: 3, items: ["bow power:2"]}
+  skeleton_hunter_4:                           # 37
+    name: Skeleton Hunter IV
+    tier: hard
+    line: skeleton_hunter
+    level: 4
+    objectives: [{type: kill, entity: skeleton, amount: 50}]
+    rewards: {money: 900, xp: 5, items: ["enchanted_book infinity:1"]}
+  zombie_slayer_1:                             # 38
+    name: Zombie Slayer I
+    tier: easy
+    line: zombie_slayer
+    level: 1
+    objectives: [{type: kill, entity: zombie, amount: 5}]
+    rewards: {money: 100, xp: 1, items: ["bread 8"]}
+  zombie_slayer_2:                             # 39
+    name: Zombie Slayer II
+    tier: easy
+    line: zombie_slayer
+    level: 2
+    objectives: [{type: kill, entity: zombie, amount: 15}]
+    rewards: {money: 250, xp: 2, items: ["iron_sword"]}
+  zombie_slayer_3:                             # 40
+    name: Zombie Slayer III
+    tier: medium
+    line: zombie_slayer
+    level: 3
+    objectives: [{type: kill, entity: zombie, amount: 30}]
+    rewards: {money: 500, xp: 3, items: ["enchanted_book smite:3"]}
+  zombie_slayer_4:                             # 41
+    name: Zombie Slayer IV
+    tier: hard
+    line: zombie_slayer
+    level: 4
+    objectives: [{type: kill, entity: zombie, amount: 60}]
+    rewards: {money: 900, xp: 5, items: ["enchanted_book sharpness:4"]}
+  spider_squasher_1:                           # 42
+    name: Spider Squasher I
+    tier: easy
+    line: spider_squasher
+    level: 1
+    objectives: [{type: kill, entity: spider, amount: 5}]
+    rewards: {money: 100, xp: 1, items: ["string 16"]}
+  spider_squasher_2:                           # 43
+    name: Spider Squasher II
+    tier: easy
+    line: spider_squasher
+    level: 2
+    objectives: [{type: kill, entity: spider, amount: 15}]
+    rewards: {money: 250, xp: 2, items: ["cobweb 3", "lead"]}
+  spider_squasher_3:                           # 44
+    name: Spider Squasher III
+    tier: medium
+    line: spider_squasher
+    level: 3
+    objectives: [{type: kill, entity: spider, amount: 30}]
+    rewards: {money: 500, xp: 3, items: ["enchanted_book bane_of_arthropods:4"]}
+  creeper_defuser_1:                           # 45
+    name: Creeper Defuser I
+    tier: easy
+    line: creeper_defuser
+    level: 1
+    objectives: [{type: kill, entity: creeper, amount: 3}]
+    rewards: {money: 150, xp: 1, items: ["tnt 8"]}
+  creeper_defuser_2:                           # 46
+    name: Creeper Defuser II
+    tier: medium
+    line: creeper_defuser
+    level: 2
+    objectives: [{type: kill, entity: creeper, amount: 10}]
+    rewards: {money: 400, xp: 3, items: ["enchanted_book blast_protection:3"]}
+  creeper_defuser_3:                           # 47
+    name: Creeper Defuser III
+    tier: hard
+    line: creeper_defuser
+    level: 3
+    objectives: [{type: kill, entity: creeper, amount: 25}]
+    rewards:
+      money: 900
+      xp: 5
+      items:
+        - random: [music_disc_13, music_disc_cat, music_disc_blocks, music_disc_chirp, music_disc_far,
+                   music_disc_mall, music_disc_mellohi, music_disc_stal, music_disc_strad, music_disc_ward,
+                   music_disc_wait, music_disc_otherside, music_disc_pigstep, music_disc_relic,
+                   music_disc_creator, music_disc_precipice]
+          picks: 2
+  enderman_hunter_1:                           # 48
+    name: Enderman Hunter I
+    tier: easy
+    line: enderman_hunter
+    level: 1
+    objectives: [{type: kill, entity: enderman, amount: 3}]
+    rewards: {money: 200, xp: 2, items: ["ender_pearl 4"]}
+  enderman_hunter_2:                           # 49
+    name: Enderman Hunter II
+    tier: medium
+    line: enderman_hunter
+    level: 2
+    objectives: [{type: kill, entity: enderman, amount: 10}]
+    rewards: {money: 500, xp: 3, items: ["ender_pearl 8"]}
+  enderman_hunter_3:                           # 50
+    name: Enderman Hunter III
+    tier: hard
+    line: enderman_hunter
+    level: 3
+    objectives: [{type: kill, entity: enderman, amount: 25}]
+    rewards: {money: 1000, xp: 6, items: ["enchanted_book silk_touch:1"]}
+  blaze_breaker_1:                             # 51 - end of the Nether chain
+    name: Blaze Breaker I
+    tier: medium
+    line: blaze_breaker
+    level: 1
+    requires: [a_terrible_fortress]
+    objectives: [{type: kill, entity: blaze, amount: 5}]
+    rewards: {money: 400, xp: 3, items: ["blaze_rod 8"]}
+  blaze_breaker_2:                             # 52
+    name: Blaze Breaker II
+    tier: hard
+    line: blaze_breaker
+    level: 2
+    objectives: [{type: kill, entity: blaze, amount: 15}]
+    rewards: {money: 800, xp: 5, items: ["enchanted_book fire_aspect:2"]}
+  blaze_breaker_3:                             # 53
+    name: Blaze Breaker III
+    tier: hard
+    line: blaze_breaker
+    level: 3
+    objectives: [{type: kill, entity: blaze, amount: 30}]
+    rewards: {money: 1200, xp: 7, items: ["potion 4 potion:long_fire_resistance"]}
+  wither_skeleton_reaper_1:                    # 54
+    name: Wither Skeleton Reaper I
+    tier: medium
+    line: wither_skeleton_reaper
+    level: 1
+    objectives: [{type: kill, entity: wither_skeleton, amount: 3}]
+    rewards: {money: 500, xp: 3, items: ["coal_block 16"]}
+  wither_skeleton_reaper_2:                    # 55
+    name: Wither Skeleton Reaper II
+    tier: hard
+    line: wither_skeleton_reaper
+    level: 2
+    objectives: [{type: kill, entity: wither_skeleton, amount: 10}]
+    rewards: {money: 1000, xp: 6, items: ["enchanted_book looting:2"]}
+  wither_skeleton_reaper_3:                    # 56
+    name: Wither Skeleton Reaper III
+    tier: hard
+    line: wither_skeleton_reaper
+    level: 3
+    objectives: [{type: kill, entity: wither_skeleton, amount: 25}]
+    rewards: {money: 1800, xp: 9, items: ["enchanted_book looting:3"]}
+  guardian_slayer_1:                           # 57
+    name: Guardian Slayer I
+    tier: medium
+    line: guardian_slayer
+    level: 1
+    objectives: [{type: kill, entity: guardian, amount: 1}]
+    rewards: {money: 300, xp: 3, items: ["prismarine_shard 16"]}
+  guardian_slayer_2:                           # 58
+    name: Guardian Slayer II
+    tier: hard
+    line: guardian_slayer
+    level: 2
+    objectives: [{type: kill, entity: guardian, amount: 10}]
+    rewards: {money: 900, xp: 5, items: ["enchanted_book depth_strider:3"]}
+  guardian_slayer_3:                           # 59
+    name: Guardian Slayer III
+    tier: hard
+    line: guardian_slayer
+    level: 3
+    objectives: [{type: kill, entity: guardian, amount: 25}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book aqua_affinity:1", "sea_lantern 8"]}
+  elder_guardian_bane:                         # 60 (squad)
+    name: Elder Guardian Bane (Squad)
+    tier: hard
+    squad: 3
+    objectives: [{type: kill, entity: elder_guardian, amount: 1}]
+    rewards: {money: 1800, xp: 9, items: ["enchanted_book respiration:3", "sponge 4"]}
+  drowned_diver_1:                             # 61
+    name: Drowned Diver I
+    tier: easy
+    line: drowned_diver
+    level: 1
+    objectives: [{type: kill, entity: drowned, amount: 10}]
+    rewards: {money: 250, xp: 2, items: ["cooked_cod 8"]}
+  drowned_diver_2:                             # 62
+    name: Drowned Diver II
+    tier: medium
+    line: drowned_diver
+    level: 2
+    objectives: [{type: kill, entity: drowned, amount: 30}]
+    rewards: {money: 700, xp: 4, items: ["enchanted_book impaling:3"]}
+  phantom_menace_1:                            # 63
+    name: Phantom Menace I
+    tier: medium
+    line: phantom_menace
+    level: 1
+    objectives: [{type: kill, entity: phantom, amount: 5}]
+    rewards: {money: 400, xp: 3, items: ["phantom_membrane 4"]}
+  phantom_menace_2:                            # 64
+    name: Phantom Menace II
+    tier: hard
+    line: phantom_menace
+    level: 2
+    objectives: [{type: kill, entity: phantom, amount: 15}]
+    rewards: {money: 900, xp: 5, items: ["phantom_membrane 8", "enchanted_book unbreaking:2"]}
+  pillager_patrol_1:                           # 65
+    name: Pillager Patrol I
+    tier: easy
+    line: pillager_patrol
+    level: 1
+    objectives: [{type: kill, entity: pillager, amount: 5}]
+    rewards: {money: 250, xp: 2, items: ["crossbow"]}
+  pillager_patrol_2:                           # 66
+    name: Pillager Patrol II
+    tier: medium
+    line: pillager_patrol
+    level: 2
+    objectives: [{type: kill, entity: pillager, amount: 15}]
+    rewards: {money: 600, xp: 4, items: ["enchanted_book quick_charge:3"]}
+  pillager_patrol_3:                           # 67
+    name: Pillager Patrol III
+    tier: hard
+    line: pillager_patrol
+    level: 3
+    objectives: [{type: kill, entity: pillager, amount: 30}]
+    rewards: {money: 1200, xp: 6, items: ["emerald 24"]}
+  witch_hunter_1:                              # 68
+    name: Witch Hunter I
+    tier: medium
+    line: witch_hunter
+    level: 1
+    objectives: [{type: kill, entity: witch, amount: 3}]
+    rewards: {money: 400, xp: 3, items: ["splash_potion 3 potion:strong_healing"]}
+  witch_hunter_2:                              # 69
+    name: Witch Hunter II
+    tier: hard
+    line: witch_hunter
+    level: 2
+    objectives: [{type: kill, entity: witch, amount: 10}]
+    rewards: {money: 900, xp: 5, items: ["potion 2 potion:strong_strength"]}
+  slime_splitter:                              # 70
+    name: Slime Splitter
+    tier: easy
+    objectives: [{type: kill, entity: slime, amount: 20}]
+    rewards: {money: 250, xp: 2, items: ["sticky_piston 3"]}
+  ghast_buster_1:                              # 71
+    name: Ghast Buster I
+    tier: medium
+    line: ghast_buster
+    level: 1
+    objectives: [{type: kill, entity: ghast, amount: 3}]
+    rewards: {money: 500, xp: 3, items: ["ghast_tear 4"]}
+  ghast_buster_2:                              # 72
+    name: Ghast Buster II
+    tier: hard
+    line: ghast_buster
+    level: 2
+    objectives: [{type: kill, entity: ghast, amount: 10}]
+    rewards: {money: 1000, xp: 6, items: ["potion 3 potion:regeneration"]}
+  brute_force:                                 # 73
+    name: Brute Force
+    tier: hard
+    objectives: [{type: kill, entity: piglin_brute, amount: 3}]
+    rewards: {money: 900, xp: 5, items: ["gold_block 3"]}
+  breeze_breaker_1:                            # 74
+    name: Breeze Breaker I
+    tier: medium
+    line: breeze_breaker
+    level: 1
+    objectives: [{type: kill, entity: breeze, amount: 3}]
+    rewards: {money: 500, xp: 3, items: ["breeze_rod 6"]}
+  breeze_breaker_2:                            # 75
+    name: Breeze Breaker II
+    tier: hard
+    line: breeze_breaker
+    level: 2
+    objectives: [{type: kill, entity: breeze, amount: 10}]
+    rewards: {money: 1000, xp: 6, items: ["enchanted_book wind_burst:1"]}
+  shulker_hunter_1:                            # 76
+    name: Shulker Hunter I
+    tier: hard
+    line: shulker_hunter
+    level: 1
+    objectives: [{type: kill, entity: shulker, amount: 5}]
+    rewards: {money: 800, xp: 5, items: ["shulker_shell 2"]}
+  shulker_hunter_2:                            # 77
+    name: Shulker Hunter II
+    tier: hard
+    line: shulker_hunter
+    level: 2
+    objectives: [{type: kill, entity: shulker, amount: 15}]
+    rewards: {money: 1500, xp: 8, items: ["shulker_box", "enchanted_book unbreaking:3"]}
+  hoglin_hunter:                               # 78
+    name: Hoglin Hunter
+    tier: medium
+    objectives: [{type: kill, entity: hoglin, amount: 10}]
+    rewards: {money: 500, xp: 3, items: ["cooked_porkchop 16", "saddle"]}
+  totem_hunter:                                # 79
+    name: Totem Hunter
+    tier: hard
+    objectives: [{type: kill, entity: evoker, amount: 3}]
+    rewards: {money: 1200, xp: 6, items: ["emerald 8", "enchanted_book sharpness:5"]}
+  warden_slayer:                               # 80 (squad)
+    name: Warden Slayer (Squad)
+    tier: legendary
+    squad: 3
+    objectives: [{type: kill, entity: warden, amount: 1}]
+    rewards: {money: 3500, xp: 15, items: ["enchanted_book swift_sneak:3"]}
+  wither_slayer:                               # 81 (squad)
+    name: Wither Slayer (Squad)
+    tier: legendary
+    squad: 3
+    objectives: [{type: kill, entity: wither, amount: 1}]
+    rewards: {money: 3500, xp: 15, items: ["enchanted_book protection:4", "diamond_block 2"]}
+  dragonslayers:                               # 82 (squad)
+    name: Dragonslayers (Squad)
+    description: Kill a re-summoned Ender Dragon
+    tier: legendary
+    squad: 3
+    requires: [free_the_end]
+    objectives: [{type: kill, entity: ender_dragon, resummoned: true, amount: 1, label: Re-summoned Ender Dragon}]
+    rewards: {money: 3500, xp: 15, items: ["dragon_head", "enchanted_book feather_falling:4"]}
+
+  # ---------------------------------------------------------------------------------------------------------------
+  #  TOWN - Fetch quests (83-100). Items are taken on turn-in.
+  # ---------------------------------------------------------------------------------------------------------------
+  harvest_season:                              # 83
+    name: Harvest Season
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: wheat, amount: 64}]
+    rewards: {money: 150, xp: 1, items: ["iron_hoe", "bone_meal 16"]}
+  lumberjack:                                  # 84
+    name: Lumberjack
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: oak_log, amount: 64}]
+    rewards: {money: 150, xp: 1, items: ["iron_axe efficiency:1"]}
+  gone_fishing:                                # 85
+    name: Gone Fishing
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: cod, amount: 10, label: Raw cod}]
+    rewards: {money: 150, xp: 1, items: ["fishing_rod luck_of_the_sea:1"]}
+  wool_gatherer:                               # 86
+    name: Wool Gatherer
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: white_wool, amount: 32}]
+    rewards: {money: 150, xp: 1, items: ["white_bed 2", "shears"]}
+  pumpkin_patch:                               # 87
+    name: Pumpkin Patch
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: pumpkin, amount: 16}]
+    rewards: {money: 150, xp: 1, items: ["pumpkin_pie 4"]}
+  sweet_tooth:                                 # 88
+    name: Sweet Tooth
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: honey_bottle, amount: 4}]
+    rewards: {money: 300, xp: 3, items: ["honey_block 2", "campfire"]}
+  sniffers_return:                             # 89
+    name: Sniffer's Return
+    tier: medium
+    rarity: rare
+    objectives: [{type: fetch, item: sniffer_egg, amount: 1}]
+    rewards: {money: 600, xp: 4, items: ["torchflower 8"]}
+  shell_collector:                             # 90
+    name: Shell Collector
+    tier: medium
+    rarity: rare
+    objectives: [{type: fetch, item: nautilus_shell, amount: 5}]
+    rewards: {money: 700, xp: 4, items: ["enchanted_book lure:3"]}
+  deep_salvage:                                # 91
+    name: Deep Salvage
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: ancient_debris, amount: 4}]
+    rewards: {money: 1500, xp: 8, items: ["netherite_upgrade_smithing_template"]}
+  heart_of_the_ocean:                          # 92
+    name: Heart of the Ocean
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: heart_of_the_sea, amount: 1}]
+    rewards: {money: 1200, xp: 6, items: ["enchanted_book riptide:3"]}
+  cheating_death:                              # 93
+    name: Cheating Death
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: totem_of_undying, amount: 1}]
+    rewards: {money: 1500, xp: 7, items: ["diamond_block 2"]}
+  skull_collector:                             # 94
+    name: Skull Collector
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: wither_skeleton_skull, amount: 3}]
+    rewards: {money: 2000, xp: 10, items: ["enchanted_book protection:4"]}
+  shell_game:                                  # 95
+    name: Shell Game
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: shulker_shell, amount: 4}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book efficiency:5"]}
+  echoes_of_the_deep:                          # 96
+    name: Echoes of the Deep
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: echo_shard, amount: 4}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book swift_sneak:2"]}
+  sea_kings_weapon:                            # 97
+    name: Sea King's Weapon
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: trident, amount: 1}]
+    rewards: {money: 1800, xp: 9, items: ["enchanted_book loyalty:3", "enchanted_book channeling:1"]}
+  notchs_apple:                                # 98
+    name: Notch's Apple
+    tier: legendary
+    rarity: legendary
+    objectives: [{type: fetch, item: enchanted_golden_apple, amount: 1}]
+    rewards: {money: 2500, xp: 12, items: ["enchanted_book mending:1"]}
+  star_of_the_nether:                          # 99
+    name: Star of the Nether
+    tier: legendary
+    rarity: legendary
+    objectives: [{type: fetch, item: nether_star, amount: 1}]
+    rewards: {money: 3500, xp: 15, items: ["enchanted_book fortune:3"]}
+  dragon_egg_bounty:                           # 100 - permanent bounty button in the menu, not one of the 5 offers
+    name: Dragon Egg Bounty
+    description: Bring 1 dragon egg (once per 7 days per player)
+    tier: bounty
+    rarity: legendary
+    bounty-cooldown-days: 7
+    objectives: [{type: fetch, item: dragon_egg, amount: 1}]
+    rewards: {money: 5000, xp: 20, items: ["enchanted_book fortune:3", "enchanted_book mending:1"]}
+
+  # ---------------------------------------------------------------------------------------------------------------
+  #  TOWN - Head quests (H1-H8). Heads must come from the plugin's head drops (or vanilla charged creepers);
+  #  heads from creative or /give are refused.
+  # ---------------------------------------------------------------------------------------------------------------
+  headhunter_creeper_1:                        # H1
+    name: "Headhunter: Creeper I"
+    tier: medium
+    rarity: common
+    line: headhunter_creeper
+    level: 1
+    objectives: [{type: fetch, item: creeper_head, amount: 3}]
+    rewards: {money: 500, xp: 3, items: ["tnt 8", "enchanted_book blast_protection:2"]}
+  headhunter_creeper_2:                        # H2
+    name: "Headhunter: Creeper II"
+    tier: hard
+    rarity: rare
+    line: headhunter_creeper
+    level: 2
+    objectives: [{type: fetch, item: creeper_head, amount: 8}]
+    rewards: {money: 1200, xp: 6, items: ["enchanted_book blast_protection:4"]}
+  headhunter_zombie_1:                         # H3
+    name: "Headhunter: Zombie I"
+    tier: medium
+    rarity: common
+    line: headhunter_zombie
+    level: 1
+    objectives: [{type: fetch, item: zombie_head, amount: 3}]
+    rewards: {money: 400, xp: 3, items: ["enchanted_book smite:3"]}
+  headhunter_zombie_2:                         # H4
+    name: "Headhunter: Zombie II"
+    tier: hard
+    rarity: rare
+    line: headhunter_zombie
+    level: 2
+    objectives: [{type: fetch, item: zombie_head, amount: 8}]
+    rewards: {money: 1000, xp: 5, items: ["enchanted_book smite:5"]}
+  headhunter_skeleton_1:                       # H5
+    name: "Headhunter: Skeleton I"
+    tier: medium
+    rarity: common
+    line: headhunter_skeleton
+    level: 1
+    objectives: [{type: fetch, item: skeleton_skull, amount: 3}]
+    rewards: {money: 400, xp: 3, items: ["enchanted_book power:3"]}
+  headhunter_skeleton_2:                       # H6
+    name: "Headhunter: Skeleton II"
+    tier: hard
+    rarity: rare
+    line: headhunter_skeleton
+    level: 2
+    objectives: [{type: fetch, item: skeleton_skull, amount: 8}]
+    rewards: {money: 1000, xp: 5, items: ["enchanted_book power:5"]}
+  headhunter_piglin_1:                         # H7
+    name: "Headhunter: Piglin I"
+    tier: medium
+    rarity: common
+    line: headhunter_piglin
+    level: 1
+    objectives: [{type: fetch, item: piglin_head, amount: 3}]
+    rewards: {money: 600, xp: 4, items: ["gold_block 2"]}
+  headhunter_piglin_2:                         # H8
+    name: "Headhunter: Piglin II"
+    tier: hard
+    rarity: rare
+    line: headhunter_piglin
+    level: 2
+    objectives: [{type: fetch, item: piglin_head, amount: 8}]
+    rewards: {money: 1500, xp: 7, items: ["enchanted_book fire_protection:4", "gold_block 2"]}
+
+  # ---------------------------------------------------------------------------------------------------------------
+  #  WANDERING quests (W1-W30). One per wandering quest-giver, 1-hour real-time limit once accepted, handed in at
+  #  the town quest-giver.
+  # ---------------------------------------------------------------------------------------------------------------
+  midnight_watch:                              # W1
+    name: Midnight Watch
+    description: Kill 20 hostile mobs in one night
+    pool: wandering
+    tier: medium
+    objectives: [{type: kill, hostile: true, night: true, amount: 20, label: Hostile mobs tonight}]
+    rewards: {money: 800, xp: 5, items: ["potion 3 potion:night_vision"]}
+  raid_captain_bounty:                         # W2
+    name: Raid Captain Bounty
+    description: Kill 3 pillager captains
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: pillager, captain: true, amount: 3, label: Pillager captains}]
+    rewards: {money: 1500, xp: 7, items: ["ominous_bottle 2"]}
+  the_hunters_trophy:                          # W3
+    name: The Hunter's Trophy
+    pool: wandering
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: wither_skeleton_skull, amount: 1}]
+    rewards: {money: 1200, xp: 6, items: ["enchanted_book looting:3"]}
+  silence_the_deep:                            # W4 (squad)
+    name: Silence the Deep (Squad)
+    pool: wandering
+    tier: legendary
+    squad: 3
+    objectives: [{type: kill, entity: warden, amount: 1}]
+    rewards: {money: 3500, xp: 15, items: ["diamond_block 2", "enchanted_book swift_sneak:3"]}
+  sunken_relic:                                # W5
+    name: Sunken Relic
+    pool: wandering
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: heart_of_the_sea, amount: 1}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book depth_strider:3", "sea_lantern 8"]}
+  merchants_debt:                              # W6
+    name: Merchant's Debt
+    pool: wandering
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: emerald, amount: 16}]
+    rewards: {money: 900, xp: 4, items: ["enchanted_book efficiency:4"]}
+  fire_and_brimstone:                          # W7
+    name: Fire and Brimstone
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: blaze, amount: 10}]
+    rewards: {money: 1200, xp: 6, items: ["enchanted_book fire_protection:4"]}
+  bone_collector:                              # W8
+    name: Bone Collector
+    pool: wandering
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: bone, amount: 64}]
+    rewards: {money: 400, xp: 2, items: ["bow power:3"]}
+  nest_of_fangs:                               # W9
+    name: Nest of Fangs
+    pool: wandering
+    tier: medium
+    objectives: [{type: kill, entity: cave_spider, amount: 15}]
+    rewards: {money: 800, xp: 4, items: ["enchanted_book bane_of_arthropods:5"]}
+  deserters_gold:                              # W10
+    name: Deserter's Gold
+    pool: wandering
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: gold_ingot, amount: 32}]
+    rewards: {money: 1000, xp: 5, items: ["golden_carrot 8", "enchanted_book fire_aspect:2"]}
+  ghost_ship:                                  # W11
+    name: Ghost Ship
+    pool: wandering
+    tier: medium
+    objectives: [{type: kill, entity: drowned, amount: 20}]
+    rewards: {money: 900, xp: 5, items: ["enchanted_book impaling:5"]}
+  sky_pirates:                                 # W12
+    name: Sky Pirates
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: phantom, amount: 10}]
+    rewards: {money: 1200, xp: 6, items: ["enchanted_book feather_falling:4"]}
+  ominous_omens:                               # W13
+    name: Ominous Omens
+    pool: wandering
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: ominous_trial_key, amount: 3}]
+    rewards: {money: 1800, xp: 9, items: ["enchanted_book wind_burst:2"]}
+  the_mace_maker:                              # W14
+    name: The Mace Maker
+    pool: wandering
+    tier: legendary
+    rarity: legendary
+    objectives: [{type: fetch, item: heavy_core, amount: 1}]
+    rewards: {money: 3000, xp: 12, items: ["enchanted_book density:5", "enchanted_book breach:4"]}
+  brute_squad:                                 # W15
+    name: Brute Squad
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: piglin_brute, amount: 5}]
+    rewards: {money: 1500, xp: 7, items: ["gold_block 3"]}
+  slime_rancher:                               # W16
+    name: Slime Rancher
+    pool: wandering
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: slime_ball, amount: 32}]
+    rewards: {money: 700, xp: 4, items: ["slime_block 4", "bow punch:2"]}
+  witching_hour:                               # W17
+    name: Witching Hour
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: witch, amount: 5}]
+    rewards: {money: 1200, xp: 6, items: ["potion 4 potion:strong_strength"]}
+  pearl_courier:                               # W18
+    name: Pearl Courier
+    pool: wandering
+    tier: hard
+    rarity: common
+    objectives: [{type: fetch, item: ender_pearl, amount: 16}]
+    rewards: {money: 1200, xp: 6, items: ["ender_chest", "enchanted_book silk_touch:1"]}
+  prospectors_tip:                             # W19
+    name: Prospector's Tip
+    pool: wandering
+    tier: medium
+    rarity: rare
+    objectives: [{type: fetch, item: diamond, amount: 5}]
+    rewards: {money: 900, xp: 5, items: ["enchanted_book fortune:2"]}
+  eye_of_the_storm:                            # W20
+    name: Eye of the Storm
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: breeze, amount: 10}]
+    rewards: {money: 1500, xp: 8, items: ["enchanted_book wind_burst:1", "wind_charge 8"]}
+  stampede:                                    # W21
+    name: Stampede
+    pool: wandering
+    tier: medium
+    objectives: [{type: kill, entity: hoglin, amount: 10}]
+    rewards: {money: 900, xp: 5, items: ["enchanted_book protection:3"]}
+  fangs_in_the_forest:                         # W22
+    name: Fangs in the Forest
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: evoker, amount: 3}]
+    rewards: {money: 1800, xp: 9, items: ["totem_of_undying"]}
+  shulker_siege:                               # W23
+    name: Shulker Siege
+    pool: wandering
+    tier: hard
+    objectives: [{type: kill, entity: shulker, amount: 10}]
+    rewards: {money: 1800, xp: 9, items: ["shulker_box", "enchanted_book efficiency:5"]}
+  the_wither_rising:                           # W24 (squad)
+    name: The Wither Rising (Squad)
+    pool: wandering
+    tier: legendary
+    squad: 3
+    objectives: [{type: kill, entity: wither, amount: 1}]
+    rewards: {money: 3500, xp: 15, items: ["enchanted_book mending:1", "diamond_block 2"]}
+  zombie_doctor:                               # W25
+    name: Zombie Doctor
+    pool: wandering
+    tier: medium
+    objectives: [{type: cure, amount: 1}]
+    rewards: {money: 800, xp: 4, items: ["golden_apple 3"]}
+  beekeepers_plea:                             # W26
+    name: Beekeeper's Plea
+    description: Bring 2 bee nests (with bees)
+    pool: wandering
+    tier: medium
+    rarity: rare
+    objectives: [{type: fetch, item: bee_nest, amount: 2, with-bees: true, label: Bee nests with bees}]
+    rewards: {money: 800, xp: 4, items: ["enchanted_book silk_touch:1"]}
+  golden_harvest:                              # W27
+    name: Golden Harvest
+    pool: wandering
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: golden_carrot, amount: 8}]
+    rewards: {money: 500, xp: 3, items: ["saddle", "enchanted_book unbreaking:2"]}
+  ancient_forge:                               # W28
+    name: Ancient Forge
+    pool: wandering
+    tier: hard
+    rarity: rare
+    objectives: [{type: fetch, item: netherite_scrap, amount: 2}]
+    rewards: {money: 1800, xp: 9, items: ["netherite_upgrade_smithing_template", "diamond 8"]}
+  the_archaeologist:                           # W29
+    name: The Archaeologist
+    description: Bring 3 different pottery sherds
+    pool: wandering
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: "#pottery_sherds", amount: 3, distinct: true, label: Different pottery sherds}]
+    rewards: {money: 900, xp: 5, items: ["brush", "enchanted_book unbreaking:3"]}
+  sniffers_lost_seed:                          # W30
+    name: Sniffer's Lost Seed
+    pool: wandering
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: torchflower_seeds, amount: 4}]
+    rewards: {money: 800, xp: 4, items: ["enchanted_book efficiency:4", "pitcher_pod 4"]}
+
+  # ---------------------------------------------------------------------------------------------------------------
+  #  WINTERFEST event quests (X1-X12). Only offered while the "winterfest" event runs (config.yml), in the
+  #  menu's event slot. Loot gets a "Winterfest <year>" lore line. Unfinished ones are removed when it ends.
+  # ---------------------------------------------------------------------------------------------------------------
+  gingerbread_baker:                           # X1
+    name: Gingerbread Baker
+    event: winterfest
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: cookie, amount: 32}]
+    rewards: {money: 200, xp: 2, items: ["cake 3"]}
+  snow_day:                                    # X2
+    name: Snow Day
+    event: winterfest
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: snowball, amount: 64}]
+    rewards: {money: 150, xp: 1, items: ["snow_block 16", "leather_boots color:red", "leather_boots color:green"]}
+  frosty_friend:                               # X3
+    name: Frosty Friend
+    description: Build a snow golem
+    event: winterfest
+    tier: easy
+    objectives: [{type: build, entity: snow_golem, amount: 1, label: Snow golem built}]
+    rewards: {money: 200, xp: 2, items: ["carved_pumpkin", "snow_block 8"]}
+  yule_log:                                    # X4
+    name: Yule Log
+    event: winterfest
+    tier: easy
+    rarity: common
+    objectives: [{type: fetch, item: spruce_log, amount: 32}]
+    rewards: {money: 200, xp: 2, items: ["campfire 4"]}
+  deck_the_halls:                              # X5
+    name: Deck the Halls
+    event: winterfest
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: lantern, amount: 32}]
+    rewards: {money: 400, xp: 3, items: ["sea_lantern 8"]}
+  wrapping_paper:                              # X6
+    name: Wrapping Paper
+    event: winterfest
+    tier: medium
+    rarity: common
+    objectives:
+      - {type: fetch, item: paper, amount: 32}
+      - {type: fetch, item: red_wool, amount: 16}
+    rewards: {money: 400, xp: 3, items: ["enchanted_book unbreaking:3"]}
+  ice_harvester:                               # X7
+    name: Ice Harvester
+    event: winterfest
+    tier: medium
+    rarity: common
+    objectives: [{type: fetch, item: packed_ice, amount: 32}]
+    rewards: {money: 500, xp: 3, items: ["iron_boots frost_walker:2"]}
+  reindeer_roundup:                            # X8
+    name: Reindeer Roundup
+    description: Breed 10 goats
+    event: winterfest
+    tier: medium
+    objectives: [{type: breed, entity: goat, amount: 10, label: Goats bred}]
+    rewards: {money: 500, xp: 4, items: ["goat_horn 2"]}
+  polar_expedition:                            # X9
+    name: Polar Expedition
+    description: Visit Snowy Plains, Ice Spikes and Frozen Peaks
+    event: winterfest
+    tier: medium
+    objectives: [{type: visit, biomes: [snowy_plains, ice_spikes, frozen_peaks]}]
+    rewards:
+      money: 600
+      xp: 4
+      items:
+        - "leather_helmet color:red protection:3"
+        - "leather_chestplate color:green protection:3"
+        - "leather_leggings color:red protection:3"
+        - "leather_boots color:green protection:3"
+  krampus_hunt:                                # X10
+    name: Krampus Hunt
+    event: winterfest
+    tier: hard
+    objectives: [{type: kill, entity: stray, amount: 25}]
+    rewards:
+      money: 1200
+      xp: 6
+      items: [{item: "iron_sword sharpness:4", name: "&cKrampus's Claw"}]
+  the_naughty_list:                            # X11 (squad)
+    name: The Naughty List (Squad)
+    description: Kill 100 hostile mobs as a squad
+    event: winterfest
+    tier: hard
+    squad: 3
+    objectives: [{type: kill, hostile: true, amount: 100, label: Hostile mobs}]
+    rewards: {money: 1500, xp: 8, items: ["diamond_block 2"]}
+  santas_helper:                               # X12
+    name: Santa's Helper
+    description: Finish 6 other Winterfest quests
+    event: winterfest
+    tier: legendary
+    objectives: [{type: complete, event: winterfest, amount: 6, label: Winterfest quests finished}]
+    rewards:
+      money: 2500
+      xp: 12
+      items: [{item: "leather_helmet color:red protection:4 mending:1", name: "&cSanta's Hat"}]

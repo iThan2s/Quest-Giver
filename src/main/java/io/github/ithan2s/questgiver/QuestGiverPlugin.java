@@ -3,10 +3,21 @@ package io.github.ithan2s.questgiver;
 import io.github.ithan2s.questgiver.command.CommandTree;
 import io.github.ithan2s.questgiver.command.Commands;
 import io.github.ithan2s.questgiver.config.Messages;
+import io.github.ithan2s.questgiver.event.EventManager;
+import io.github.ithan2s.questgiver.itemtag.ItemTagListener;
 import io.github.ithan2s.questgiver.npc.GiverManager;
 import io.github.ithan2s.questgiver.npc.NpcListener;
 import io.github.ithan2s.questgiver.npc.SkinService;
 import io.github.ithan2s.questgiver.progress.PlayerDataManager;
+import io.github.ithan2s.questgiver.progress.ProgressListener;
+import io.github.ithan2s.questgiver.progress.QuestService;
+import io.github.ithan2s.questgiver.progress.TrackerService;
+import io.github.ithan2s.questgiver.quest.QuestDefinition;
+import io.github.ithan2s.questgiver.quest.QuestRegistry;
+import io.github.ithan2s.questgiver.reward.Economy;
+import io.github.ithan2s.questgiver.reward.RewardCapValidator;
+import io.github.ithan2s.questgiver.reward.RewardService;
+import io.github.ithan2s.questgiver.squad.SquadManager;
 import io.github.ithan2s.questgiver.storage.Storage;
 import io.github.ithan2s.questgiver.util.Keys;
 import io.github.ithan2s.questgiver.util.Tasks;
@@ -22,7 +33,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public final class QuestGiverPlugin extends JavaPlugin implements Listener {
@@ -32,6 +46,14 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     private SkinService skins;
     private GiverManager givers;
     private NpcListener npcListener;
+    private final QuestRegistry quests = new QuestRegistry(getLogger());
+    private RewardService rewards;
+    private SquadManager squads;
+    private EventManager events;
+    private QuestService questService;
+    private TrackerService tracker;
+    private ProgressListener progressListener;
+    private ItemTagListener itemTagListener;
     private YamlConfiguration questsYaml;
     private YamlConfiguration giversYaml;
 
@@ -54,6 +76,18 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
             return;
         }
         data = new PlayerDataManager(storage, getLogger());
+        loadQuests();
+        rewards = new RewardService(this, new Economy(getLogger()));
+        rewards.economy().hook();
+        squads = new SquadManager(storage, getLogger());
+        squads.loadAll();
+        events = new EventManager(storage, getLogger());
+        events.load(getConfig());
+        questService = new QuestService(this);
+        tracker = new TrackerService(this);
+        progressListener = new ProgressListener(this);
+        itemTagListener = new ItemTagListener(this);
+        configureItemTags();
 
         skins = new SkinService(storage);
         givers = new GiverManager(this, skins);
@@ -64,6 +98,8 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         pm.registerEvents(this, this);
         pm.registerEvents(givers, this);
         pm.registerEvents(npcListener, this);
+        pm.registerEvents(progressListener, this);
+        pm.registerEvents(itemTagListener, this);
         for (Player online : Bukkit.getOnlinePlayers()) {
             data.loadBlocking(online.getUniqueId(), online.getName());
         }
@@ -74,14 +110,40 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
         long autosave = Math.max(10, getConfig().getLong("storage.autosave-seconds", 60)) * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveDirty, autosave, autosave);
+        Bukkit.getScheduler().runTaskTimer(this, squads::saveDirty, autosave, autosave);
         Bukkit.getScheduler().runTaskTimer(this, givers::ensureBodies, 40L, 100L);
+        Bukkit.getScheduler().runTaskTimer(this, progressListener::onTick, 1L, 1L);
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            questService.tickTimers();
+            tracker.tickTimers();
+        }, 20L, 20L);
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (data.getIfLoaded(p.getUniqueId()) != null && questService.needsBiomeTick(p)) {
+                    questService.onBiomeTick(p);
+                }
+            }
+        }, 40L, 40L);
+        Bukkit.getScheduler().runTaskTimer(this, events::tick, 200L, 1200L);
+        events.listeners((def, run) -> Bukkit.getOnlinePlayers().forEach(p ->
+                        messages.send(p, "event.started", "event", def.displayName())),
+                (def, run) -> {
+                    questService.onEventEnded(run);
+                    Bukkit.getOnlinePlayers().forEach(p -> messages.send(p, "event.ended", "event", def.displayName()));
+                });
         getLogger().info("QuestGiver enabled.");
     }
 
     @Override
     public void onDisable() {
+        if (tracker != null) {
+            tracker.clearAll();
+        }
         if (data != null) {
             data.saveAll();
+        }
+        if (squads != null) {
+            squads.saveAll();
         }
         if (storage != null) {
             storage.close();
@@ -101,10 +163,51 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         giversYaml = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "givers.yml"));
     }
 
+    private void loadQuests() {
+        int n = quests.load(questsYaml, getConfig().getConfigurationSection("quests.fetch-rarity-defaults"));
+        getLogger().info("Loaded " + n + " quests.");
+        validateRewards();
+    }
+
+    /** Warns about quests that pay more than the dragon egg bounty or sit outside their tier's range. */
+    private void validateRewards() {
+        List<RewardCapValidator.Entry> entries = new ArrayList<>();
+        for (QuestDefinition q : quests.all()) {
+            entries.add(new RewardCapValidator.Entry(q.id(), q.tier().key(), q.pool(), q.isBounty(),
+                    q.rewards().money(), q.rewards().xp()));
+        }
+        Map<String, RewardCapValidator.Range> ranges = new HashMap<>();
+        var section = getConfig().getConfigurationSection("reward-caps.tier-ranges");
+        if (section != null) {
+            for (String tier : section.getKeys(false)) {
+                List<Integer> r = section.getIntegerList(tier);
+                if (r.size() == 4) {
+                    ranges.put(tier, new RewardCapValidator.Range(r.get(0), r.get(1), r.get(2), r.get(3)));
+                }
+            }
+        }
+        List<String> warnings = RewardCapValidator.validate(entries,
+                getConfig().getDouble("reward-caps.max-money", 5000), getConfig().getInt("reward-caps.max-xp", 20),
+                ranges, getConfig().getBoolean("reward-caps.warn-tier-ranges", true));
+        warnings.forEach(w -> getLogger().warning("[reward caps] " + w));
+    }
+
+    private void configureItemTags() {
+        itemTagListener.configure(getConfig().getBoolean("item-tags.tag-creative", true),
+                getConfig().getBoolean("item-tags.tag-commands", true),
+                getConfig().getStringList("item-tags.watched-commands"));
+    }
+
     /** /quest reload: re-reads every file and re-applies it without touching player progress. */
     public void reloadAll() {
         data.saveAll();
+        squads.saveAll();
         loadFiles();
+        loadQuests();
+        events.load(getConfig());
+        configureItemTags();
+        rewards.economy().hook();
+        tracker.refreshAll();
         givers.load(giversYaml);
         givers.all().forEach(givers::refreshBody);
         givers.ensureBodies();
@@ -156,6 +259,30 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
     public NpcListener npcListener() {
         return npcListener;
+    }
+
+    public QuestRegistry quests() {
+        return quests;
+    }
+
+    public RewardService rewards() {
+        return rewards;
+    }
+
+    public SquadManager squads() {
+        return squads;
+    }
+
+    public EventManager events() {
+        return events;
+    }
+
+    public QuestService questService() {
+        return questService;
+    }
+
+    public TrackerService tracker() {
+        return tracker;
     }
 
     public YamlConfiguration questsYaml() {

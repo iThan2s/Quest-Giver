@@ -1,1 +1,265 @@
-# placeholder
+# =================================================================================================================
+#  QuestGiver - config.yml
+#  General settings. Quests live in quests.yml, NPCs in givers.yml and every message in messages.yml.
+#  /quest reload re-reads all four files without a restart and without touching player progress.
+#  Sounds are Minecraft sound keys (e.g. entity.player.levelup); leave one empty ("") to turn it off.
+# =================================================================================================================
+
+storage:
+  # Player data, squads and stats are kept in plugins/QuestGiver/data.db (SQLite, using the driver Paper ships).
+  # Changed data is also saved on logout and shutdown; this is the extra background save interval.
+  autosave-seconds: 60
+
+quests:
+  # How many quests a player can hold at once (solo + squad quests). Give players questgiver.limit.<n>
+  # (e.g. questgiver.limit.8) to raise it per rank; the highest one they have wins.
+  max-active: 5
+  # After /quest abandon, the same quest can't be taken again for this many minutes (0 = no cooldown).
+  abandon-cooldown-minutes: 10
+  # Difficulty tiers unlock as players finish more quests (total quests completed).
+  tier-unlocks:
+    easy: 0
+    medium: 5
+    hard: 15
+    legendary: 30
+  # Cosmetic reputation points earned per quest by tier (a quest can override with rewards.reputation).
+  # Reputation unlocks nothing.
+  reputation:
+    easy: 1
+    medium: 2
+    hard: 3
+    legendary: 5
+    bounty: 10
+  # Quest-giver menu: how many quests are on offer, and how many of those may be squad-only.
+  offers:
+    slots: 5
+    max-squad: 2
+  # Default payouts for fetch quests by rarity, used when a fetch quest in quests.yml has no money/xp of its own.
+  # Every quest in the bundled catalog sets its own rewards, so these only matter for quests you add.
+  fetch-rarity-defaults:
+    common: {money: 150, xp: 1}
+    rare: {money: 1000, xp: 5}
+    legendary: {money: 2500, xp: 12}
+
+death-penalty:
+  # Each death while a quest is active docks that quest's money and XP by per-death (10%), up to max (50%).
+  # Loot is never docked. In squads each member's own deaths only dock their own payout.
+  enabled: true
+  per-death: 0.10
+  max: 0.50
+
+tracker:
+  # How the tracked quest's progress is shown: bossbar, sidebar or off. /quest track <quest> picks the quest.
+  # The sidebar is skipped for players whose scoreboard another plugin controls.
+  mode: bossbar
+  # Boss bar colours: PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE.
+  color: PURPLE
+  # Countdown bar for real-time limited (wandering) quests.
+  timer-color: YELLOW
+
+squad:
+  max-size: 6
+  # Squad-only quests (marked "squad: 3" in quests.yml) need at least this many members (the higher of the two).
+  min-size-for-squad-quests: 3
+  # How long a /quest squad add invite stays valid.
+  invite-expire-seconds: 120
+  # Squad members who already finished a quest can still take it with the squad, but get this share of its
+  # money and XP (0.5 = half). Loot is not reduced. Stacks with the death penalty.
+  repeat-multiplier: 0.5
+  # Optional exploit guard when a squad quest is handed in. Members out of range (or offline) get nothing.
+  # max-distance: blocks from the player handing in (0 = any distance). same-world: must be in the same world.
+  # With the check off, offline members receive their rewards the next time they log in.
+  range-check:
+    enabled: false
+    max-distance: 100
+    same-world: true
+
+wandering:
+  enabled: true
+  # Works like the wandering trader: an attempt every 20 minutes, starting at 25% and rising 25% after each
+  # failed attempt up to 75%; a successful spawn resets it to the start chance.
+  attempt-interval-minutes: 20
+  start-chance: 0.25
+  chance-step: 0.25
+  max-chance: 0.75
+  # Wandering givers alive at the same time.
+  max-active: 1
+  # A wanderer nobody accepts leaves after this long (real time, also counts while its chunk is unloaded).
+  despawn-minutes: 60
+  # Real-time limit to finish a wandering quest once accepted (keeps running while the player is offline).
+  # Kill/objective quests must be finished in time and can then be handed in later; fetch quests must be
+  # delivered to the town quest-giver within the limit.
+  quest-time-limit-minutes: 60
+  # Worlds wanderers may appear in. Empty = every normal (overworld-type) world.
+  worlds: []
+  modes:
+    # "They come to you": spawns near a random online player and tells them.
+    near-player:
+      enabled: true
+      min-distance: 16
+      max-distance: 40
+    # Spawns at a random spot in the world to be stumbled upon.
+    random:
+      enabled: true
+      # Distance from the world spawn.
+      radius: 1500
+      # Broadcast rough coordinates when one appears.
+      announce: false
+  # Random looks for wanderers: a display name and the player whose skin they wear.
+  appearances:
+    - {name: "&6Traveling Knight", skin: "Notch"}
+    - {name: "&8Hooded Stranger", skin: "Herobrine"}
+    - {name: "&2Forest Ranger", skin: "Dinnerbone"}
+    - {name: "&eWandering Bard", skin: "jeb_"}
+    - {name: "&bSea Captain", skin: "Grumm"}
+    - {name: "&5Mysterious Mage", skin: "MHF_Villager"}
+
+weekly:
+  # The "Collect your weekly rewards" button: claimable once every cooldown-days, counted from the last claim.
+  cooldown-days: 7
+  # Remind players in chat when they log in and a reward is waiting.
+  login-reminder: true
+  streak:
+    # Claiming again within this many days of the previous claim continues the streak; otherwise it resets.
+    window-days: 14
+    # +1 to the roll per consecutive week, up to this. A natural 1 still fails.
+    max-bonus: 5
+  # Always given.
+  base:
+    money: 300
+    xp: 5
+    # One of these is picked at random.
+    random-items:
+      - ["diamond 3"]
+      - ["emerald 5"]
+  # d20 tiers by (roll + streak bonus, capped at 20). A natural 1 is always the critical fail tier.
+  # Each tier adds money/xp/items on top of the base; random-items picks one entry. Items use the quests.yml
+  # format. fireworks and announce are used for the jackpot.
+  tiers:
+    critical-fail:
+      range: [1, 1]
+      money: 0
+      xp: 0
+      items: []
+    base:
+      range: [2, 9]
+      money: 0
+      xp: 0
+      items: []
+    bonus:
+      range: [10, 15]
+      money: 200
+      xp: 0
+      items: ["emerald 8"]
+    big-bonus:
+      range: [16, 19]
+      money: 0
+      xp: 0
+      items: ["diamond 5"]
+      random-items:
+        - ["enchanted_book unbreaking:3"]
+        - ["enchanted_book efficiency:4"]
+        - ["enchanted_book protection:4"]
+        - ["enchanted_book sharpness:4"]
+        - ["enchanted_book feather_falling:4"]
+    jackpot:
+      range: [20, 20]
+      money: 0
+      xp: 0
+      items: ["enchanted_book mending:1", "diamond_block 1"]
+      fireworks: true
+      announce: true
+  # Title animation before the result.
+  animation:
+    ticks: 50
+    tick-sound: ui.button.click
+    result-sound: entity.player.levelup
+    fail-sound: entity.villager.no
+    jackpot-sound: ui.toast.challenge_complete
+
+dragon-egg:
+  # Chance (0-1) that a re-killed Ender Dragon leaves a new egg on the exit portal (vanilla only gives one).
+  extra-drop-chance: 1.0
+  # The bounty itself (rewards, cooldown) is the dragon_egg_bounty quest in quests.yml.
+
+leaderboard:
+  # Holograms need DecentHolograms. /quest top works without it.
+  size: 10
+  title:
+    - "&6&l✦ Quest Leaderboard ✦"
+    - "&7Quests completed · quest earnings"
+  # {rank} {player} {completed} {earned}
+  line: "&e#{rank} &f{player} &7- &a{completed} quests &7- &6{earned}"
+  empty: "&7No quests completed yet."
+
+events:
+  # Seasonal events. Start/stop by hand with /quest event start|stop <name>, or give dates to run automatically:
+  # "MM-DD" repeats every year (may wrap the new year, e.g. 12-20 to 01-05), "YYYY-MM-DD" runs once.
+  # Leave start/end empty for manual-only events. While an event runs, one of the menu's offer slots can hold
+  # one of its quests (quests.yml entries with "event: <name>"). Event loot gets the lore line below, and
+  # unfinished event quests are removed when the event ends. Each year's event can be played again.
+  winterfest:
+    display-name: "&b&lWinterfest"
+    lore: "&bWinterfest {year}"
+    start: "12-01"
+    end: "12-31"
+    # Which givers (by pool in givers.yml) offer the event quests.
+    giver-pool: town
+
+item-tags:
+  # Items from creative mode, from item commands, and the plugin's own rewards are tagged and refused at fetch
+  # turn-in, so quests can't be farmed with spawned items or recycled rewards.
+  tag-creative: true
+  tag-commands: true
+  tag-rewards: true
+  # Commands that hand out items. Namespaced forms (minecraft:give, essentials:i) are matched too.
+  watched-commands: [give, i, item, egive, eitem, more, unlimited, kit, ekit, loot]
+
+spawners:
+  # Silk Touch on an iron, diamond or netherite pickaxe drops the spawner and keeps its mob type.
+  # Other pickaxes or no Silk Touch break it normally with no drop.
+  enabled: true
+  allowed-pickaxes: [IRON_PICKAXE, DIAMOND_PICKAXE, NETHERITE_PICKAXE]
+
+head-drops:
+  # Chance (0-1) for a mob killed by a player to drop its head. Charged-creeper head drops still work as normal.
+  enabled: true
+  chances:
+    creeper: 0.1
+    zombie: 0.1
+    skeleton: 0.1
+    piglin: 0.1
+
+reward-caps:
+  # Checked when quests load: warns about any quest paying more than the dragon egg bounty, and (optionally)
+  # town quests outside their tier's range [min money, max money, min levels, max levels].
+  max-money: 5000
+  max-xp: 20
+  warn-tier-ranges: true
+  tier-ranges:
+    easy: [100, 300, 1, 2]
+    medium: [300, 800, 3, 5]
+    hard: [800, 2000, 5, 10]
+    legendary: [2000, 3500, 10, 15]
+
+npc:
+  # Defaults for /quest giver create.
+  default-name: "&6&lQuest Giver"
+  default-skin: ""
+  # Small text under the name of player-model givers ("" to hide it).
+  mannequin-description: "&7Quest Giver"
+
+effects:
+  accept:
+    sound: entity.experience_orb.pickup
+  ready:
+    sound: block.note_block.bell
+  complete:
+    sound: entity.player.levelup
+    # Particle shown around the player on completion (Bukkit particle name).
+    particle: TOTEM_OF_UNDYING
+    particle-count: 40
+  menu-click:
+    sound: ui.button.click
+  deny:
+    sound: entity.villager.no

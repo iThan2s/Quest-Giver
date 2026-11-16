@@ -21,6 +21,9 @@ usage:
   giver-remove: /quest giver remove
   giver-select: /quest giver select <id>
   giver-list: /quest giver list
+  root: /quest
+  track: /quest track <quest>
+  abandon: /quest abandon <quest>
 admin:
   reloaded: '&aReloaded QuestGiver in {ms} ms.'
 giver:
@@ -66,3 +69,53 @@ dialogue:
     - You don't have what I asked for yet, {player}.
     - Come back when you've finished the job.
     - Empty-handed? That won't do.
+quest:
+  none-active: '&7You have no active quests. Visit a quest-giver to pick one up!'
+  list-header: '&6&lYour quests &7({count}/{cap})'
+  list-line: ' &e{quest} &8({id})&7: {state}{time}{squad}'
+  list-time: ' &8| &e{time} left'
+  list-squad: ' &8| &dsquad {squad}'
+  state-ready: '&aReady to turn in!'
+  not-active: '&cYou don''t have an active quest called &f{quest}&c.'
+  tracking: '&aNow tracking &f{quest}&a.'
+  abandoned: '&7You abandoned &f{quest}&7.'
+  ready: '&a&lQuest complete: &f{quest}&a! Return to &r{giver}&a to claim your reward.'
+  town-giver: the town quest-giver
+  completed: '&a&lQuest complete! &f{quest}'
+  reward-summary: ' &7Reward: &6{money} &7· &b{xp} &7· &f{items} &7· &d+{reputation} reputation'
+  reward-penalty: ' &c-{percent}% money and XP for {deaths} death(s) during the quest.'
+  reward-repeat: ' &e{percent}% money and XP: you had already finished this quest before.'
+  no-items: no items
+  death-penalty: '&cYou died with active quests! Their money and XP are now docked up to &f{percent}%&c.'
+  biome-visited: '&aDiscovered &f{biome}&a for &f{quest}&a ({have}/{need}).'
+  progress-actionbar: '&6{quest} &8» &f{label} &e{have}&7/&e{need}'
+  expired: '&cTime''s up! &f{quest}&c has failed.'
+  expired-offline: '&cWhile you were away, the time limit on &f{quest}&c ran out.'
+  event-ended: '&7The event is over, so &f{quest}&7 was removed.'
+progress:
+  line: '&7{label}: &e{have}&7/&e{need}'
+  line-done: '&a✔ {label}: {have}/{need}'
+  advancement: '&7Earn: &e{label}'
+  advancement-done: '&a✔ Earned: {label}'
+tracker:
+  bossbar: '&d{quest} &8» &f{progress}'
+  bossbar-ready: '&a{quest} &8» &aReady to turn in!'
+  sidebar-title: '&6&l{quest}'
+  sidebar-ready: '&aReady to turn in!'
+  timer: '&e⌛ {quest} &8- &f{time} left'
+menu:
+  reward-money: '&6{money}'
+  reward-xp: '&b{xp}'
+  reward-item: '&f{item}'
+  reward-docked: '&c(-{percent}% money/XP for {deaths} death(s))'
+event:
+  started: '&b&lEvent started: &r{event}&b! Event quests are now on offer at the quest-giver.'
+  ended: '&7The &r{event}&7 event has ended.'
+squad:
+  leader-only: '&cOnly the squad leader can do that.'
+  quest-accepted: '&d{leader}&7 accepted &f{quest}&7 for your squad!'
+  quest-abandoned: '&d{leader}&7 abandoned the squad quest &f{quest}&7.'
+  member-missed-offline: '&e{player}&7 was offline and gets no reward (range check is on).'
+  member-missed-range: '&e{player}&7 was too far away and gets no reward.'
+  missed-out-of-range: '&cYour squad handed in &f{quest}&c, but you were too far away to share the reward.'
+  offline-reward: '&aWhile you were away, your squad &d{squad}&a handed in &f{quest}&a. Here''s your share!'
