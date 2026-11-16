@@ -37,6 +37,7 @@ public final class GiverManager implements Listener {
     private final SkinService skins;
     private final Map<String, GiverDefinition> givers = new LinkedHashMap<>();
     private final Map<UUID, String> selected = new HashMap<>();
+    private final Map<UUID, Long> lastGreeting = new HashMap<>();
 
     public GiverManager(QuestGiverPlugin plugin, SkinService skins) {
         this.plugin = plugin;
@@ -96,6 +97,16 @@ public final class GiverManager implements Listener {
         if (!line.isEmpty()) {
             plugin.messages().sendPlain(player, "dialogue.format",
                     "giver", giver == null ? "" : giver.name, "line", line);
+        }
+    }
+
+    /** Greets a player when they open the menu, at most once a minute. */
+    public void greet(Player player, GiverDefinition giver) {
+        long now = System.currentTimeMillis();
+        Long last = lastGreeting.get(player.getUniqueId());
+        if (last == null || now - last > 60_000) {
+            lastGreeting.put(player.getUniqueId(), now);
+            say(player, giver, "greeting", "player", player.getName());
         }
     }
 

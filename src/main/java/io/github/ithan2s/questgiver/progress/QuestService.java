@@ -230,6 +230,58 @@ public final class QuestService {
         return Eligibility.OK;
     }
 
+    /** Quests this giver could offer the player right now (eligible, from its pool or a running event). */
+    public List<QuestDefinition> offerCandidates(Player p, GiverDefinition giver) {
+        PlayerData d = data().get(p);
+        List<QuestDefinition> out = new ArrayList<>();
+        for (QuestDefinition q : registry().all()) {
+            if (q.isBounty() || q.isWandering()) {
+                continue;
+            }
+            boolean inPool;
+            if (q.isEvent()) {
+                EventManager.Definition def = events().get(q.event());
+                inPool = def != null && events().isActive(q.event()) && def.giverPool().equals(giver.pool);
+            } else {
+                inPool = q.pool().equals(giver.pool);
+            }
+            if (inPool && eligibility(p, d, q) == Eligibility.OK) {
+                out.add(q);
+            }
+        }
+        return out;
+    }
+
+    /** The player's current offers at this giver, refreshed by the offer rules and saved per player. */
+    public List<String> offers(Player p, GiverDefinition giver) {
+        PlayerData d = data().get(p);
+        int slots = Math.max(1, Math.min(7, cfg().getInt("quests.offers.slots", 5)));
+        List<io.github.ithan2s.questgiver.gui.OfferRules.Candidate> candidates = new ArrayList<>();
+        for (QuestDefinition q : offerCandidates(p, giver)) {
+            candidates.add(new io.github.ithan2s.questgiver.gui.OfferRules.Candidate(q.id(), q.isSquadOnly(),
+                    q.isEvent()));
+        }
+        int eventSlot = events().anyActiveFor(giver.pool) ? slots - 1 : -1;
+        List<String> current = d.offers.get(giver.id);
+        List<String> next = io.github.ithan2s.questgiver.gui.OfferRules.fill(current, slots, candidates,
+                cfg().getInt("quests.offers.max-squad", 2), eventSlot, java.util.concurrent.ThreadLocalRandom.current());
+        if (!next.equals(current)) {
+            d.offers.put(giver.id, new ArrayList<>(next));
+            d.markDirty();
+        }
+        return next;
+    }
+
+    /** Empties the slot of an accepted quest so the next refresh fills it with a new one. */
+    public void consumeOffer(Player p, GiverDefinition giver, String questId) {
+        PlayerData d = data().get(p);
+        List<String> current = d.offers.get(giver.id);
+        if (current != null) {
+            current.replaceAll(id -> questId.equals(id) ? null : id);
+            d.markDirty();
+        }
+    }
+
     public static boolean hasAdvancement(Player p, NamespacedKey key) {
         Advancement adv = Bukkit.getAdvancement(key);
         return adv != null && p.getAdvancementProgress(adv).isDone();

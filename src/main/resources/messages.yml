@@ -24,6 +24,7 @@ usage:
   root: /quest
   track: /quest track <quest>
   abandon: /quest abandon <quest>
+  list: /quest list
 admin:
   reloaded: '&aReloaded QuestGiver in {ms} ms.'
 giver:
@@ -108,6 +109,78 @@ menu:
   reward-xp: '&b{xp}'
   reward-item: '&f{item}'
   reward-docked: '&c(-{percent}% money/XP for {deaths} death(s))'
+  giver-title: '&8Quests &7- &r{giver}'
+  list-title: '&8Your quests'
+  history-title: '&8History &7- &r{giver}'
+  choice-title: '&8Accept for whom?'
+  abandon-title: '&8Abandon this quest?'
+  confirm-fetch-title: '&8Hand these items over?'
+  offer-name: '{tier-color}&l{quest}'
+  active-name: '&d{quest} &7(in progress)'
+  ready-name: '&a&l{quest} &a(ready!)'
+  description: '&7{description}'
+  tier: '&7Tier: {tier} &8· &7{type}'
+  level: '&7Level &f{level}&7 of &f{max}'
+  squad-only: '&dSquad quest &7(needs {size}+ members)'
+  event-quest: '&bEvent quest: &r{event}'
+  rarity: '&7Rarity: {rarity} &8(asks before taking items)'
+  time-limit: '&e⌛ {minutes} minute time limit once accepted'
+  time-left: '&e⌛ {time} left'
+  time-done: '&a⌛ Finished in time - hand it in whenever you like'
+  progress: '&6Progress:'
+  rewards: '&6Rewards:'
+  reward-prefix: ' &8• '
+  refused-items: ' &c{count} of your matching items came from creative, /give or rewards and won''t count.'
+  given-by: '&7Given by: &r{giver}'
+  squad-quest: '&dSquad quest &7with &d{squad} &7({members} members)'
+  click-accept: '&eClick to accept'
+  click-accept-choice: '&eClick to accept (solo or for your squad)'
+  click-accept-squad: '&eClick to accept for your squad'
+  click-turn-in: '&a&lClick to turn in!'
+  click-track: '&eClick to track &8· &7Shift-right-click to abandon'
+  click-track-ready: '&eClick to track &8· &aReady to turn in at the quest-giver'
+  click-other-giver: '&7Turn this one in at the giver who gave it &8· &eClick to track'
+  abandon-hint: '&cProgress on this quest will be lost.'
+  confirm-fetch-hint: '&eThe items will be taken from your inventory.'
+  no-offer: '&7No quest available'
+  no-offer-lore:
+  - '&8You''ve done everything this giver offers'
+  - '&8for now. Finish more quests to unlock'
+  - '&8harder tiers and follow-up quests.'
+  nothing-ready: '&7Nothing ready to turn in'
+  history: '&e&lQuest history'
+  history-lore:
+  - '&7Quests you''ve finished with this giver.'
+  history-name: '&a{quest}'
+  history-entry:
+  - '&7Finished: &f{date}'
+  - '&7Rewards: &6{money} &7· &b{xp}'
+  - '&7Items: &f{items}'
+  history-squad: '&7With squad &d{squad}'
+  history-empty: '&7You haven''t finished any quests here yet.'
+  date-format: MMM d, yyyy HH:mm
+  stats: '&6&l{player}'
+  stats-lore:
+  - '&7Quests completed: &f{completed}'
+  - '&7Quest earnings: &6{earned}'
+  - '&7Reputation here: &d{reputation} &8(total {total-reputation})'
+  - '&7Active quests: &f{active}&7/&f{cap}'
+  list-empty: '&7You have no active quests'
+  list-empty-lore:
+  - '&8Right-click a quest-giver to pick one up.'
+  close: '&cClose'
+  back: '&7Back'
+  confirm: '&a&lConfirm'
+  confirm-lore: []
+  cancel: '&c&lCancel'
+  choice-solo: '&f&lJust me'
+  choice-solo-lore:
+  - '&7Take the quest on your own.'
+  choice-squad: '&d&lSquad {squad}'
+  choice-squad-lore:
+  - '&7Take it for the whole squad. Everyone in'
+  - '&7the squad right now shares progress and'
+  - '&7gets the full reward. The roster locks.'
 event:
   started: '&b&lEvent started: &r{event}&b! Event quests are now on offer at the quest-giver.'
   ended: '&7The &r{event}&7 event has ended.'
@@ -119,3 +192,40 @@ squad:
   member-missed-range: '&e{player}&7 was too far away and gets no reward.'
   missed-out-of-range: '&cYour squad handed in &f{quest}&c, but you were too far away to share the reward.'
   offline-reward: '&aWhile you were away, your squad &d{squad}&a handed in &f{quest}&a. Here''s your share!'
+tier:
+  easy: '&aEasy'
+  medium: '&eMedium'
+  hard: '&cHard'
+  legendary: '&6&lLegendary'
+  bounty: '&5&lBounty'
+tier-color:
+  easy: '&a'
+  medium: '&e'
+  hard: '&c'
+  legendary: '&6'
+  bounty: '&5'
+type:
+  advancement: Advancement
+  kill: Hunt
+  fetch: Fetch
+  visit: Exploration
+  breed: Breeding
+  build: Building
+  cure: Healing
+  complete: Event challenge
+rarity:
+  common: '&fCommon'
+  rare: '&9Rare'
+  legendary: '&6Legendary'
+accept:
+  ok: '&aQuest accepted: &f{quest}&a. Check &e/quest list&a for your progress.'
+  ok-squad: '&aQuest accepted for your squad: &f{quest}&a. The roster is now locked for this quest.'
+  cap: '&cYou already have the maximum of &f{cap}&c active quests. Finish or abandon one first.'
+  squad-required: '&cThis is a squad quest: you need a squad of at least &f{size}&c. Use /quest squad assemble <name>.'
+  not-leader: '&cOnly your squad leader can accept squad quests.'
+  squad-too-small: '&cYour squad needs at least &f{size}&c members for this quest.'
+  squad-has-quest: '&cYour squad is already doing that quest.'
+  not-eligible: '&cYou can''t take that quest right now.'
+turnin:
+  wrong-giver: '&cHand this quest in at &r{giver}&c.'
+  unknown: '&cThat quest no longer exists.'

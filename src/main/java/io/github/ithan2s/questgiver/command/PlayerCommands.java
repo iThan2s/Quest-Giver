@@ -21,6 +21,10 @@ public final class PlayerCommands {
 
         tree.register("", "questgiver.quest.use", true, (sender, args) -> listActive(plugin, (Player) sender));
 
+        tree.register("list", "questgiver.quest.list", true,
+                (sender, args) -> new io.github.ithan2s.questgiver.gui.ListMenu(plugin, (Player) sender)
+                        .open((Player) sender));
+
         CommandTree.Completer active = (sender, args) ->
                 sender instanceof Player p ? qs.activeIds(p) : List.of();
 

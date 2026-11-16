@@ -4,7 +4,13 @@ import io.github.ithan2s.questgiver.command.CommandTree;
 import io.github.ithan2s.questgiver.command.Commands;
 import io.github.ithan2s.questgiver.config.Messages;
 import io.github.ithan2s.questgiver.event.EventManager;
+import io.github.ithan2s.questgiver.gui.GiverMenu;
+import io.github.ithan2s.questgiver.gui.MenuHooks;
+import io.github.ithan2s.questgiver.gui.MenuItems;
+import io.github.ithan2s.questgiver.gui.MenuListener;
+import io.github.ithan2s.questgiver.gui.QuestActions;
 import io.github.ithan2s.questgiver.itemtag.ItemTagListener;
+import io.github.ithan2s.questgiver.npc.GiverDefinition;
 import io.github.ithan2s.questgiver.npc.GiverManager;
 import io.github.ithan2s.questgiver.npc.NpcListener;
 import io.github.ithan2s.questgiver.npc.SkinService;
@@ -54,6 +60,9 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     private TrackerService tracker;
     private ProgressListener progressListener;
     private ItemTagListener itemTagListener;
+    private final MenuItems menuItems = new MenuItems(this);
+    private final QuestActions questActions = new QuestActions(this);
+    private final MenuHooks menuHooks = new MenuHooks();
     private YamlConfiguration questsYaml;
     private YamlConfiguration giversYaml;
 
@@ -100,6 +109,19 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         pm.registerEvents(npcListener, this);
         pm.registerEvents(progressListener, this);
         pm.registerEvents(itemTagListener, this);
+        pm.registerEvents(new MenuListener(getLogger()), this);
+        npcListener.onTown((player, entity) -> {
+            GiverDefinition giver = givers.byEntity(entity);
+            if (giver == null) {
+                return;
+            }
+            if (!player.hasPermission("questgiver.quest.use")) {
+                messages.send(player, "general.no-permission");
+                return;
+            }
+            givers.greet(player, giver);
+            GiverMenu.open(this, player, giver);
+        });
         for (Player online : Bukkit.getOnlinePlayers()) {
             data.loadBlocking(online.getUniqueId(), online.getName());
         }
@@ -283,6 +305,18 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
     public TrackerService tracker() {
         return tracker;
+    }
+
+    public MenuItems menuItems() {
+        return menuItems;
+    }
+
+    public QuestActions questActions() {
+        return questActions;
+    }
+
+    public MenuHooks menuHooks() {
+        return menuHooks;
     }
 
     public YamlConfiguration questsYaml() {
