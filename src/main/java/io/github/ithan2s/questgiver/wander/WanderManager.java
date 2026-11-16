@@ -62,8 +62,8 @@ public final class WanderManager implements Listener {
     public void load() {
         try {
             Map<String, String> kv = plugin.storage().supply(c -> Map.of(
-                    "chance", String.valueOf(Storage.getKv(c, "wander.chance")),
-                    "list", String.valueOf(Storage.getKv(c, "wander.list")))).get(10, TimeUnit.SECONDS);
+                    "chance", String.valueOf(Storage.getKv(c, "wanderers.chance")),
+                    "list", String.valueOf(Storage.getKv(c, "wanderers.list")))).get(10, TimeUnit.SECONDS);
             chance = kv.get("chance").equals("null") ? cfg().getDouble("wandering.start-chance", 0.25)
                     : Double.parseDouble(kv.get("chance"));
             wanderers.clear();
@@ -94,8 +94,8 @@ public final class WanderManager implements Listener {
         String list = PlayerDataManager.GSON.toJson(new ArrayList<>(wanderers.values()));
         String c = Double.toString(chance);
         plugin.storage().run(conn -> {
-            Storage.setKv(conn, "wander.chance", c);
-            Storage.setKv(conn, "wander.list", list);
+            Storage.setKv(conn, "wanderers.chance", c);
+            Storage.setKv(conn, "wanderers.list", list);
             return null;
         });
     }
