@@ -4,6 +4,9 @@ import io.github.ithan2s.questgiver.command.CommandTree;
 import io.github.ithan2s.questgiver.command.Commands;
 import io.github.ithan2s.questgiver.config.Messages;
 import io.github.ithan2s.questgiver.dragon.DragonService;
+import io.github.ithan2s.questgiver.extras.HeadDropListener;
+import io.github.ithan2s.questgiver.extras.SpawnerListener;
+import io.github.ithan2s.questgiver.leaderboard.LeaderboardService;
 import io.github.ithan2s.questgiver.event.EventManager;
 import io.github.ithan2s.questgiver.gui.GiverMenu;
 import io.github.ithan2s.questgiver.gui.MenuHooks;
@@ -71,6 +74,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     private WanderManager wanderers;
     private WeeklyService weekly;
     private DragonService dragon;
+    private LeaderboardService leaderboard;
     private YamlConfiguration questsYaml;
     private YamlConfiguration giversYaml;
 
@@ -111,6 +115,8 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         dragon = new DragonService(this);
         menuHooks.add(weekly::decorate);
         menuHooks.add(dragon::decorate);
+        leaderboard = new LeaderboardService(this);
+        leaderboard.load();
 
         skins = new SkinService(storage);
         givers = new GiverManager(this, skins);
@@ -126,6 +132,8 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         pm.registerEvents(new MenuListener(getLogger()), this);
         pm.registerEvents(wanderers, this);
         pm.registerEvents(dragon, this);
+        pm.registerEvents(new SpawnerListener(this), this);
+        pm.registerEvents(new HeadDropListener(this), this);
         npcListener.onWanderer((player, entity) -> {
             Wanderer w = wanderers.byEntity(entity);
             if (w == null) {
@@ -177,6 +185,8 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         }, 40L, 40L);
         Bukkit.getScheduler().runTaskTimer(this, events::tick, 200L, 1200L);
         Bukkit.getScheduler().runTaskTimer(this, wanderers::sweep, 600L, 600L);
+        // DecentHolograms finishes loading after us; give it a moment before placing holograms.
+        Bukkit.getScheduler().runTaskLater(this, leaderboard::refreshNow, 60L);
         events.listeners((def, run) -> Bukkit.getOnlinePlayers().forEach(p ->
                         messages.send(p, "event.started", "event", def.displayName())),
                 (def, run) -> {
@@ -190,6 +200,9 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     public void onDisable() {
         if (tracker != null) {
             tracker.clearAll();
+        }
+        if (leaderboard != null) {
+            leaderboard.removeAllHolograms();
         }
         if (data != null) {
             data.saveAll();
@@ -261,6 +274,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         rewards.economy().hook();
         tracker.refreshAll();
         wanderers.schedule();
+        leaderboard.refreshNow();
         givers.load(giversYaml);
         givers.all().forEach(givers::refreshBody);
         givers.ensureBodies();
@@ -370,6 +384,10 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
     public DragonService dragon() {
         return dragon;
+    }
+
+    public LeaderboardService leaderboard() {
+        return leaderboard;
     }
 
     public YamlConfiguration questsYaml() {

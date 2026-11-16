@@ -223,6 +223,7 @@ spawners:
 
 head-drops:
   # Chance (0-1) for a mob killed by a player to drop its head. Charged-creeper head drops still work as normal.
+  # You can also add wither_skeleton or ender_dragon here.
   enabled: true
   chances:
     creeper: 0.1

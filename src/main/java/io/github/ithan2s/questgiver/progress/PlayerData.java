@@ -34,6 +34,8 @@ public final class PlayerData {
     public int weeklyPendingNatural;
     public int weeklyPendingBonus;
     public long dragonLastTurnIn;
+    /** History page only shows quests finished after this (set by a full admin reset). */
+    public long historySince;
     /** Uid of the quest shown in the tracker, or null for automatic. */
     public String tracked;
 

@@ -49,7 +49,8 @@ public final class HistoryMenu extends Menu {
     public static void open(QuestGiverPlugin plugin, Player player, GiverDefinition giver) {
         UUID uuid = player.getUniqueId();
         String giverId = giver.id;
-        plugin.storage().supply(c -> Storage.history(c, uuid, giverId, 45)).thenAccept(rows -> Tasks.main(() -> {
+        long since = plugin.data().get(player).historySince;
+        plugin.storage().supply(c -> Storage.history(c, uuid, giverId, since, 45)).thenAccept(rows -> Tasks.main(() -> {
             if (player.isOnline()) {
                 new HistoryMenu(plugin, player, giver, rows).open(player);
             }

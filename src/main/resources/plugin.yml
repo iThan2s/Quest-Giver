@@ -4,5 +4,82 @@ main: io.github.ithan2s.questgiver.QuestGiverPlugin
 api-version: '26.3'
 description: NPC quest-givers with levelled quests, squads, wandering givers, weekly d20 rewards and leaderboards.
 authors: [Ryan]
+# Vault is the bridge to the EssentialsX economy. DecentHolograms is optional (hologram leaderboards).
 depend: [Vault]
 softdepend: [DecentHolograms, Essentials]
+
+# The /quest command is registered in code (Paper command API); these are its permissions.
+permissions:
+  questgiver.quest.*:
+    description: Everything regular players can do.
+    default: true
+    children:
+      questgiver.quest.use: true
+      questgiver.quest.list: true
+      questgiver.quest.track: true
+      questgiver.quest.abandon: true
+      questgiver.quest.top: true
+      questgiver.squad.use: true
+  questgiver.quest.use:
+    description: Use quest-givers (town and wandering) and /quest.
+    default: true
+  questgiver.quest.list:
+    description: Open the /quest list menu.
+    default: true
+  questgiver.quest.track:
+    description: Choose the tracked quest with /quest track.
+    default: true
+  questgiver.quest.abandon:
+    description: Abandon quests with /quest abandon.
+    default: true
+  questgiver.quest.top:
+    description: See the leaderboard with /quest top.
+    default: true
+  questgiver.squad.use:
+    description: Assemble and join squads.
+    default: true
+  questgiver.admin.*:
+    description: Every admin command.
+    default: op
+    children:
+      questgiver.admin.reload: true
+      questgiver.admin.giver: true
+      questgiver.admin.leaderboard: true
+      questgiver.admin.event: true
+      questgiver.admin.wander: true
+      questgiver.admin.reset: true
+      questgiver.admin.complete: true
+      questgiver.admin.give: true
+      questgiver.admin.progress: true
+      questgiver.admin.stats: true
+  questgiver.admin.reload:
+    description: /quest reload
+    default: op
+  questgiver.admin.giver:
+    description: /quest giver create|name|skin|type|move|spawn|despawn|remove|select|list
+    default: op
+  questgiver.admin.leaderboard:
+    description: /quest leaderboard create|remove|movehere|list
+    default: op
+  questgiver.admin.event:
+    description: /quest event start|stop|list
+    default: op
+  questgiver.admin.wander:
+    description: /quest wander spawn|list|clear
+    default: op
+  questgiver.admin.reset:
+    description: /quest admin reset <player> [quest]
+    default: op
+  questgiver.admin.complete:
+    description: /quest admin complete <player> <quest>
+    default: op
+  questgiver.admin.give:
+    description: /quest admin give <player> <quest>
+    default: op
+  questgiver.admin.progress:
+    description: /quest admin progress <player>
+    default: op
+  questgiver.admin.stats:
+    description: /quest admin stats
+    default: op
+  # questgiver.limit.<n> (e.g. questgiver.limit.8) raises a player's active-quest cap to n. Not granted by default.

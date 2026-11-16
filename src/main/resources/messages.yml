@@ -35,8 +35,39 @@ usage:
   wander-spawn: /quest wander spawn [here|near|random]
   wander-list: /quest wander list
   wander-clear: /quest wander clear
+  top: /quest top
+  leaderboard-create: /quest leaderboard create [id]
+  leaderboard-remove: /quest leaderboard remove <id>
+  leaderboard-movehere: /quest leaderboard movehere <id>
+  leaderboard-list: /quest leaderboard list
+  event-start: /quest event start <name>
+  event-stop: /quest event stop <name>
+  event-list: /quest event list
+  admin-reset: /quest admin reset <player> [quest]
+  admin-complete: /quest admin complete <player> <quest>
+  admin-give: /quest admin give <player> <quest>
+  admin-progress: /quest admin progress <player>
+  admin-stats: /quest admin stats
 admin:
   reloaded: '&aReloaded QuestGiver in {ms} ms.'
+  giver-name: '&cAdmin'
+  unknown-player: '&cNo player called &f{player}&c has quest data.'
+  unknown-quest: '&cThere''s no quest with the id &f{quest}&c. Tab-complete to see them.'
+  no-data: '&c{player} has no quest data yet.'
+  reset-all: '&aReset all quest progress, cooldowns and streaks of &f{player}&a.'
+  reset-quest: '&aReset &f{quest}&a for &f{player}&a.'
+  completed: '&aCompleted &f{quest}&a for &f{player}&a and paid the rewards.'
+  completed-offline: '&a{player} is offline: &f{quest}&a will be completed and paid when they next log in.'
+  offline-completed: '&aAn admin completed &f{quest}&a for you while you were away. Here are your rewards!'
+  already-active: '&c{player} already has &f{quest}&c.'
+  given: '&aGave &f{quest}&a to &f{player}&a.'
+  given-you: '&aAn admin gave you the quest &f{quest}&a.'
+  progress-header: '&6&lQuest progress of {player}'
+  progress-stats: ' &7Completed: &f{completed} &8({distinct} distinct) &7· Earned: &6{earned} &7· Reputation: &d{reputation}'
+  progress-weekly: ' &7Weekly reward: &f{state} &7· streak &f{streak}'
+  weekly-ready: '&aready'
+  progress-none: ' &7No active quests.'
+  progress-line: ' &e{quest} &8({id})&7: {progress} &8· deaths {deaths}{squad}'
 giver:
   bad-id: '&cGiver ids may only use a-z, 0-9, _ and - (max 32 characters).'
   exists: '&cA giver called &f{giver}&c already exists.'
@@ -210,6 +241,16 @@ menu:
 event:
   started: '&b&lEvent started: &r{event}&b! Event quests are now on offer at the quest-giver.'
   ended: '&7The &r{event}&7 event has ended.'
+  unknown: '&cThere''s no event called &f{event}&c in config.yml.'
+  already-running: '&c{event}&c is already running.'
+  not-running: '&c{event}&c isn''t running.'
+  admin-started: '&aStarted {event}&a ({run}).'
+  admin-stopped: '&aStopped {event}&a. Unfinished event quests were removed.'
+  list-header: '&6Seasonal events:'
+  list-line: ' {event} &8({id}) &7- {state} &8· &7{dates} &8· &7{quests} quests'
+  manual-only: manual only
+  state-on: '&arunning'
+  state-off: '&8not running'
 squad:
   leader-only: '&cOnly the squad leader can do that.'
   quest-accepted: '&d{leader}&7 accepted &f{quest}&7 for your squad!'
@@ -353,3 +394,29 @@ bounty:
   egg-refused: '&cThat dragon egg came from creative, /give or a reward, so it can''t be turned in.'
   confirm-title: '&8Hand over your dragon egg?'
   egg-dropped: '&5The defeated dragon left another egg on the exit portal!'
+top:
+  header: '&6&l✦ Quest leaderboard ✦ &7(quests completed · quest earnings)'
+  line: ' &e#{rank} &f{player} &7- &a{completed} quests &7- &6{earned}'
+  empty: ' &7Nobody has finished a quest yet. Be the first!'
+lb:
+  not-installed: '&cDecentHolograms isn''t installed, so hologram leaderboards are unavailable. /quest top still works.'
+  bad-id: '&cLeaderboard ids may only use a-z, 0-9, _ and -.'
+  exists: '&cA leaderboard called &f{id}&c already exists.'
+  created: '&aPlaced leaderboard &f{id}&a here.'
+  removed: '&aRemoved leaderboard &f{id}&a.'
+  moved: '&aMoved leaderboard &f{id}&a to you.'
+  unknown: '&cThere''s no leaderboard called &f{id}&c.'
+  none: '&7There are no leaderboards. Use /quest leaderboard create.'
+  list-header: '&6Leaderboards:'
+  list-line: ' &e{id} &8@ {world} {x} {y} {z}'
+stats:
+  header: '&6&lQuestGiver payouts &7(quests, bounties and weekly rewards)'
+  line: ' &e{period}&7: &6{money} &7· &b{xp} levels &7· &f{items} items &8({count} payouts)'
+  today: Today
+  week: This week
+  all-time: All time
+  top-header: '&6Top-earning quests:'
+  top-line: ' &e#{rank} &f{quest} &7- &6{money} &8({count}x)'
+  none: ' &7Nothing paid out yet.'
+spawner:
+  lore: '&7Spawner: &e{mob}'

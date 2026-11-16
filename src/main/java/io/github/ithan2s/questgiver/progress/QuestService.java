@@ -357,6 +357,24 @@ public final class QuestService {
         return AcceptResult.OK;
     }
 
+    /** Admin: gives a quest directly (no cap, eligibility or squad checks). */
+    public void give(Player p, QuestDefinition q, String giverName, long timeLimitMs) {
+        PlayerData d = data().get(p);
+        ActiveQuest aq = ActiveQuest.create(q.id(), "admin", giverName, System.currentTimeMillis());
+        if (q.isEvent()) {
+            aq.eventRun = events().activeRun(q.event());
+        }
+        if (timeLimitMs > 0) {
+            aq.expiresAt = aq.acceptedAt + timeLimitMs;
+        }
+        d.active.add(aq);
+        Ref ref = new Ref(aq, d, null);
+        initialProgress(ref, q, p);
+        d.markDirty();
+        afterProgress(ref, q, p, false);
+        plugin.tracker().update(p);
+    }
+
     private void initialProgress(Ref ref, QuestDefinition q, Player p) {
         ActiveQuest aq = ref.quest();
         for (int i = 0; i < q.objectives().size(); i++) {
@@ -872,6 +890,7 @@ public final class QuestService {
         }
         plugin.tracker().update(m);
         onComplete.run();
+        plugin.leaderboard().refreshSoon();
     }
 
     public static String formatXp(double xp) {
@@ -934,7 +953,8 @@ public final class QuestService {
                         plugin.getLogger().warning("Dropping offline reward for unknown quest " + pending.questId());
                         continue;
                     }
-                    msg().send(p, "squad.offline-reward", "quest", q.name(), "squad", pending.squad());
+                    msg().send(p, pending.squad() == null ? "admin.offline-completed" : "squad.offline-reward",
+                            "quest", q.name(), "squad", String.valueOf(pending.squad()));
                     completeFor(p, q, pending.deaths(), pending.giverId(), pending.giverName(), pending.squad(),
                             pending.eventRun());
                 }

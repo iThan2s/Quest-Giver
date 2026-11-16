@@ -19,5 +19,8 @@ public final class Commands {
         GiverCommands.register(plugin, tree);
         io.github.ithan2s.questgiver.squad.SquadCommands.register(plugin, tree);
         io.github.ithan2s.questgiver.wander.WanderCommands.register(plugin, tree);
+        io.github.ithan2s.questgiver.leaderboard.LeaderboardCommands.register(plugin, tree);
+        io.github.ithan2s.questgiver.event.EventCommands.register(plugin, tree);
+        io.github.ithan2s.questgiver.admin.AdminCommands.register(plugin, tree);
     }
 }

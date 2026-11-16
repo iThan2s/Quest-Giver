@@ -225,14 +225,16 @@ public final class Storage {
     }
 
     /** Quest history for one player and giver ("wandering" quests show at every town giver). */
-    public static List<Payout> history(Connection c, UUID uuid, String giverId, int limit) throws SQLException {
+    public static List<Payout> history(Connection c, UUID uuid, String giverId, long since, int limit)
+            throws SQLException {
         List<Payout> rows = new ArrayList<>();
         try (PreparedStatement ps = c.prepareStatement(
                 "SELECT * FROM payouts WHERE uuid = ? AND source IN ('quest','bounty') "
-                        + "AND (giver_id = ? OR giver_id = 'wandering') ORDER BY ts DESC LIMIT ?")) {
+                        + "AND (giver_id = ? OR giver_id IN ('wandering', 'admin')) AND ts >= ? ORDER BY ts DESC LIMIT ?")) {
             ps.setString(1, uuid.toString());
             ps.setString(2, giverId);
-            ps.setInt(3, limit);
+            ps.setLong(3, since);
+            ps.setInt(4, limit);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     rows.add(readPayout(rs));
