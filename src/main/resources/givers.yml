@@ -19,7 +19,8 @@
 #    spawned:              false after /quest giver despawn
 #    location / entity:    where the NPC stands and the entity it is currently bound to
 #    dialogue:             lines picked at random. Leave a list empty to use the defaults from messages.yml.
-#                          Keys: greeting, offer, accept, turn-in, empty-handed. Placeholders: {player}, {quest}
+#                          Keys: greeting, offer, accept, turn-in, empty-handed, weekly-crit-fail.
+#                          Placeholders: {player}, {quest}
 #
 #  No player data is ever stored here or on the NPC entity, so removing and respawning a giver resets nothing.
 # ---------------------------------------------------------------------------------------------------------------

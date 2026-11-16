@@ -16,7 +16,8 @@ import java.util.UUID;
 public final class GiverDefinition {
     public enum Type { PLAYER, VILLAGER }
 
-    public static final List<String> DIALOGUE_KEYS = List.of("offer", "accept", "turn-in", "empty-handed", "greeting");
+    public static final List<String> DIALOGUE_KEYS = List.of("greeting", "offer", "accept", "turn-in", "empty-handed",
+            "weekly-crit-fail");
 
     public final String id;
     public Type type = Type.PLAYER;

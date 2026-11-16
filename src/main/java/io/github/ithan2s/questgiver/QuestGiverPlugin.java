@@ -3,6 +3,7 @@ package io.github.ithan2s.questgiver;
 import io.github.ithan2s.questgiver.command.CommandTree;
 import io.github.ithan2s.questgiver.command.Commands;
 import io.github.ithan2s.questgiver.config.Messages;
+import io.github.ithan2s.questgiver.dragon.DragonService;
 import io.github.ithan2s.questgiver.event.EventManager;
 import io.github.ithan2s.questgiver.gui.GiverMenu;
 import io.github.ithan2s.questgiver.gui.MenuHooks;
@@ -27,6 +28,7 @@ import io.github.ithan2s.questgiver.squad.SquadManager;
 import io.github.ithan2s.questgiver.storage.Storage;
 import io.github.ithan2s.questgiver.util.Keys;
 import io.github.ithan2s.questgiver.wander.WanderManager;
+import io.github.ithan2s.questgiver.weekly.WeeklyService;
 import io.github.ithan2s.questgiver.wander.WanderMenu;
 import io.github.ithan2s.questgiver.wander.Wanderer;
 import io.github.ithan2s.questgiver.util.Tasks;
@@ -67,6 +69,8 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     private final QuestActions questActions = new QuestActions(this);
     private final MenuHooks menuHooks = new MenuHooks();
     private WanderManager wanderers;
+    private WeeklyService weekly;
+    private DragonService dragon;
     private YamlConfiguration questsYaml;
     private YamlConfiguration giversYaml;
 
@@ -103,6 +107,10 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         configureItemTags();
         wanderers = new WanderManager(this);
         wanderers.load();
+        weekly = new WeeklyService(this);
+        dragon = new DragonService(this);
+        menuHooks.add(weekly::decorate);
+        menuHooks.add(dragon::decorate);
 
         skins = new SkinService(storage);
         givers = new GiverManager(this, skins);
@@ -117,6 +125,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         pm.registerEvents(itemTagListener, this);
         pm.registerEvents(new MenuListener(getLogger()), this);
         pm.registerEvents(wanderers, this);
+        pm.registerEvents(dragon, this);
         npcListener.onWanderer((player, entity) -> {
             Wanderer w = wanderers.byEntity(entity);
             if (w == null) {
@@ -275,6 +284,16 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void onJoinReminders(PlayerJoinEvent event) {
+        Player p = event.getPlayer();
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            if (p.isOnline()) {
+                weekly.onJoin(p);
+            }
+        }, 60L);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         data.unload(event.getPlayer());
     }
@@ -343,6 +362,14 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
     public WanderManager wanderers() {
         return wanderers;
+    }
+
+    public WeeklyService weekly() {
+        return weekly;
+    }
+
+    public DragonService dragon() {
+        return dragon;
     }
 
     public YamlConfiguration questsYaml() {

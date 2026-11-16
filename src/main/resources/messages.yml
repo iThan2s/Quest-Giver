@@ -80,6 +80,10 @@ dialogue:
     - You don't have what I asked for yet, {player}.
     - Come back when you've finished the job.
     - Empty-handed? That won't do.
+    weekly-crit-fail:
+    - A natural 1! Did you roll that with your elbow, {player}?
+    - Ouch. The dice gods are not with you today.
+    - Critical fail! Here's your base reward... and my condolences.
   wanderer:
     greeting:
     - Psst, {player}. I won't be here long.
@@ -302,3 +306,50 @@ wander:
   list-header: '&6Wandering quest-givers: &f{count} &7(next spawn chance {chance}%)'
   list-line: ' &r{name} &7- &f{quest} &8@ {world} {x} {y} {z} &7(leaves in {time})'
   cleared: '&aRemoved {count} wandering quest-giver(s).'
+weekly:
+  button-ready: '&a&lCollect your weekly rewards!'
+  button-ready-lore:
+  - '&7Base reward plus a &fd20 roll for initiative&7.'
+  - '&7Streak: &f{streak} week(s) &8· &7your roll gets &a+{bonus}'
+  - ''
+  - '&8 1      &7critical fail'
+  - '&8 2-9    &7base reward'
+  - '&8 10-15  &7+ money and emeralds'
+  - '&8 16-19  &7+ diamonds and an enchanted book'
+  - '&8 20     &6jackpot!'
+  - ''
+  - '&eClick to roll'
+  button-wait: '&7Weekly rewards'
+  button-wait-lore:
+  - '&7Next reward in &e{time}&7.'
+  - '&7Streak: &f{streak} week(s)'
+  - '&8Claim again within a week of it becoming'
+  - '&8available to keep your streak.'
+  not-yet: '&cYour next weekly reward is ready in &f{time}&c.'
+  rolling-title: '&e&l{roll}'
+  rolling-subtitle: '&7Rolling for initiative...'
+  result-title: '&a&l{roll}'
+  result-title-fail: '&c&l1'
+  result-title-jackpot: '&6&l20!'
+  result-subtitle: '&f{tier} &8({roll})'
+  roll-with-bonus: '{natural} +{bonus} = {total}'
+  result: '&7You rolled &f{roll}&7: &f{tier}'
+  reward-summary: ' &7Weekly reward: &6{money} &7· &b{xp} levels &7· &f{items}'
+  jackpot-announce: '&6&l★ {player} rolled a 20 on their weekly reward and hit the jackpot! ★'
+  reminder: '&aYour weekly reward is waiting! Visit a quest-giver to roll the d20 (&f+{bonus}&a streak bonus).'
+  paying-interrupted: '&7You left before your weekly roll finished; here''s what you rolled:'
+  tier:
+    critical-fail: '&cCritical fail!'
+    base: '&fBase reward'
+    bonus: '&aBonus!'
+    big-bonus: '&bBig bonus!'
+    jackpot: '&6&lJACKPOT!'
+bounty:
+  name: '&5&l{quest}'
+  click: '&eClick to hand over a dragon egg'
+  cooldown: '&cOn cooldown: &f{time}'
+  on-cooldown: '&cYou can turn in another dragon egg in &f{time}&c.'
+  no-egg: '&cYou don''t have a dragon egg to hand over.'
+  egg-refused: '&cThat dragon egg came from creative, /give or a reward, so it can''t be turned in.'
+  confirm-title: '&8Hand over your dragon egg?'
+  egg-dropped: '&5The defeated dragon left another egg on the exit portal!'

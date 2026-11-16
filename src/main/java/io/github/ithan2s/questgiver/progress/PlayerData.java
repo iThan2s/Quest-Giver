@@ -30,6 +30,9 @@ public final class PlayerData {
     public long weeklyLastClaim;
     /** Consecutive weeks claimed before the most recent claim chain broke. */
     public int weeklyStreak;
+    /** A weekly roll that was made but not yet paid (player left or server stopped mid-animation); 0 = none. */
+    public int weeklyPendingNatural;
+    public int weeklyPendingBonus;
     public long dragonLastTurnIn;
     /** Uid of the quest shown in the tracker, or null for automatic. */
     public String tracked;
