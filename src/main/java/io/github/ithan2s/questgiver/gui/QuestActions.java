@@ -21,13 +21,19 @@ public final class QuestActions {
     /**
      * Accepts a quest, first asking squad leaders whether it's for them or the squad.
      *
-     * @param onAccepted runs after a successful accept with true if it was accepted for the squad
+     * @param soloAllowed false when the player may only take it with their squad (a wandering quest they finished)
+     * @param onAccepted  runs after a successful accept with true if it was accepted for the squad
      */
     public void accept(Player p, QuestDefinition q, String giverId, String giverName, long timeLimitMs,
-                       Consumer<Boolean> onAccepted) {
+                       boolean soloAllowed, Consumer<Boolean> onAccepted) {
         Messages msg = plugin.messages();
         Squad squad = plugin.squads().of(p.getUniqueId());
         boolean leader = squad != null && squad.isLeader(p.getUniqueId()) && squad.size() > 1;
+        if (!soloAllowed && !leader) {
+            msg.send(p, "wander.already-done");
+            plugin.questService().play(p, "effects.deny.sound");
+            return;
+        }
         if (q.isSquadOnly() && !leader) {
             msg.send(p, squad == null ? "accept.squad-required" : "accept.not-leader", "size",
                     Math.max(q.squadSize(), plugin.getConfig().getInt("squad.min-size-for-squad-quests", 3)));
@@ -35,7 +41,7 @@ public final class QuestActions {
             return;
         }
         if (leader) {
-            new ChoiceMenu(msg, plugin.menuItems().offer(p, q, false), squad.name, !q.isSquadOnly(),
+            new ChoiceMenu(msg, plugin.menuItems().offer(p, q, false), squad.name, soloAllowed && !q.isSquadOnly(),
                     () -> doAccept(p, q, false, giverId, giverName, timeLimitMs, onAccepted),
                     () -> doAccept(p, q, true, giverId, giverName, timeLimitMs, onAccepted)).open(p);
             return;

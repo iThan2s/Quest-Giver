@@ -32,6 +32,9 @@ usage:
   squad-kick: /quest squad kick <player>
   squad-list: /quest squad list
   squad-disband: /quest squad disband
+  wander-spawn: /quest wander spawn [here|near|random]
+  wander-list: /quest wander list
+  wander-clear: /quest wander clear
 admin:
   reloaded: '&aReloaded QuestGiver in {ms} ms.'
 giver:
@@ -77,6 +80,17 @@ dialogue:
     - You don't have what I asked for yet, {player}.
     - Come back when you've finished the job.
     - Empty-handed? That won't do.
+  wanderer:
+    greeting:
+    - Psst, {player}. I won't be here long.
+    - Well met, traveller. I've a job worth your while.
+    - I've walked a long road. Perhaps you can help me.
+    accept:
+    - Then it's yours. Hurry, the hour is short! Report to the town quest-giver.
+    - Good. Don't make me regret this, {player}.
+    leave:
+    - My road calls. Farewell.
+    - No takers? Then I'm off.
 quest:
   none-active: '&7You have no active quests. Visit a quest-giver to pick one up!'
   list-header: '&6&lYour quests &7({count}/{cap})'
@@ -188,6 +202,7 @@ menu:
   - '&7Take it for the whole squad. Everyone in'
   - '&7the squad right now shares progress and'
   - '&7gets the full reward. The roster locks.'
+  wander-title: '&8Wanderer &7- &r{giver}'
 event:
   started: '&b&lEvent started: &r{event}&b! Event quests are now on offer at the quest-giver.'
   ended: '&7The &r{event}&7 event has ended.'
@@ -268,3 +283,22 @@ accept:
 turnin:
   wrong-giver: '&cHand this quest in at &r{giver}&c.'
   unknown: '&cThat quest no longer exists.'
+wander:
+  description: '&7Wandering Quest-Giver'
+  arrived-near: '&6A wandering quest-giver, &r{name}&6, has arrived nearby! They won''t stay long.'
+  rumor: '&7Rumour has it &r{name}&7 was seen in &f{world}&7 near &f{x}, {z}&7.'
+  no-quest: '&cThis wanderer has nothing to offer.'
+  gone: '&cSomeone else already took this wanderer''s quest.'
+  already-done: '&cYou''ve already finished this quest. Only a squad can take it again (with reduced pay).'
+  already-active: '&cYou''re already doing this quest.'
+  leaves-in: '&eLeaves in {time}'
+  leaves-lore:
+  - '&7The first player or squad to accept'
+  - '&7claims the quest, and the wanderer moves on.'
+  - '&7Hand it in at the town quest-giver.'
+  no-spot: '&cCouldn''t find a safe spot for a wanderer there.'
+  spawned-here: '&aSpawned the wandering quest-giver &r{name}&a.'
+  spawned-at: '&aSpawned &r{name}&a in {world} at {x} {y} {z}.'
+  list-header: '&6Wandering quest-givers: &f{count} &7(next spawn chance {chance}%)'
+  list-line: ' &r{name} &7- &f{quest} &8@ {world} {x} {y} {z} &7(leaves in {time})'
+  cleared: '&aRemoved {count} wandering quest-giver(s).'

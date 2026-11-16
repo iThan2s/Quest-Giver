@@ -75,7 +75,7 @@ public final class GiverMenu extends Menu {
                 continue;
             }
             set(slot, items.offer(player, q, leader), e -> plugin.questActions().accept(player, q, giver.id,
-                    giver.name, 0, forSquad -> {
+                    giver.name, 0, true, forSquad -> {
                         qs.consumeOffer(player, giver, q.id());
                         plugin.givers().say(player, giver, "accept", "player", player.getName(), "quest", q.name());
                         reopen();

@@ -26,6 +26,9 @@ import io.github.ithan2s.questgiver.reward.RewardService;
 import io.github.ithan2s.questgiver.squad.SquadManager;
 import io.github.ithan2s.questgiver.storage.Storage;
 import io.github.ithan2s.questgiver.util.Keys;
+import io.github.ithan2s.questgiver.wander.WanderManager;
+import io.github.ithan2s.questgiver.wander.WanderMenu;
+import io.github.ithan2s.questgiver.wander.Wanderer;
 import io.github.ithan2s.questgiver.util.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -63,6 +66,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     private final MenuItems menuItems = new MenuItems(this);
     private final QuestActions questActions = new QuestActions(this);
     private final MenuHooks menuHooks = new MenuHooks();
+    private WanderManager wanderers;
     private YamlConfiguration questsYaml;
     private YamlConfiguration giversYaml;
 
@@ -97,6 +101,8 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         progressListener = new ProgressListener(this);
         itemTagListener = new ItemTagListener(this);
         configureItemTags();
+        wanderers = new WanderManager(this);
+        wanderers.load();
 
         skins = new SkinService(storage);
         givers = new GiverManager(this, skins);
@@ -110,6 +116,20 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         pm.registerEvents(progressListener, this);
         pm.registerEvents(itemTagListener, this);
         pm.registerEvents(new MenuListener(getLogger()), this);
+        pm.registerEvents(wanderers, this);
+        npcListener.onWanderer((player, entity) -> {
+            Wanderer w = wanderers.byEntity(entity);
+            if (w == null) {
+                entity.remove();
+                return;
+            }
+            if (!player.hasPermission("questgiver.quest.use")) {
+                messages.send(player, "general.no-permission");
+                return;
+            }
+            wanderers.say(player, w, "greeting");
+            new WanderMenu(this, player, w).open(player);
+        });
         npcListener.onTown((player, entity) -> {
             GiverDefinition giver = givers.byEntity(entity);
             if (giver == null) {
@@ -147,6 +167,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
             }
         }, 40L, 40L);
         Bukkit.getScheduler().runTaskTimer(this, events::tick, 200L, 1200L);
+        Bukkit.getScheduler().runTaskTimer(this, wanderers::sweep, 600L, 600L);
         events.listeners((def, run) -> Bukkit.getOnlinePlayers().forEach(p ->
                         messages.send(p, "event.started", "event", def.displayName())),
                 (def, run) -> {
@@ -230,6 +251,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         configureItemTags();
         rewards.economy().hook();
         tracker.refreshAll();
+        wanderers.schedule();
         givers.load(giversYaml);
         givers.all().forEach(givers::refreshBody);
         givers.ensureBodies();
@@ -317,6 +339,10 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
     public MenuHooks menuHooks() {
         return menuHooks;
+    }
+
+    public WanderManager wanderers() {
+        return wanderers;
     }
 
     public YamlConfiguration questsYaml() {
