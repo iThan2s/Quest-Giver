@@ -1,0 +1,8 @@
+name: QuestGiver
+version: '${version}'
+main: io.github.ithan2s.questgiver.QuestGiverPlugin
+api-version: '26.3'
+description: NPC quest-givers with levelled quests, squads, wandering givers, weekly d20 rewards and leaderboards.
+authors: [Ryan]
+depend: [Vault]
+softdepend: [DecentHolograms, Essentials]

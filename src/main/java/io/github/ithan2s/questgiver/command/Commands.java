@@ -1,0 +1,18 @@
+package io.github.ithan2s.questgiver.command;
+
+import io.github.ithan2s.questgiver.QuestGiverPlugin;
+
+/** Registers every /quest subcommand. */
+public final class Commands {
+    private Commands() {
+    }
+
+    public static void registerAll(QuestGiverPlugin plugin, CommandTree tree) {
+        tree.register("help", null, false, (sender, args) -> tree.sendHelp(sender, ""));
+        tree.register("reload", "questgiver.admin.reload", false, (sender, args) -> {
+            long start = System.currentTimeMillis();
+            plugin.reloadAll();
+            plugin.messages().send(sender, "admin.reloaded", "ms", System.currentTimeMillis() - start);
+        });
+    }
+}

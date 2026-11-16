@@ -1,0 +1,15 @@
+prefix: "&8[&6Quests&8] &7"
+general:
+  no-permission: "&cYou don't have permission to do that."
+  players-only: "&cOnly players can use this command."
+  usage: "&cUsage: &f{usage}"
+  error: "&cSomething went wrong. Check the server console."
+  data-load-failed: "&cYour quest data could not be loaded. Please try again in a moment."
+help:
+  header: "&6&lQuests &7- commands"
+  line: " &e{usage}"
+usage:
+  help: "/quest help"
+  reload: "/quest reload"
+admin:
+  reloaded: "&aReloaded QuestGiver in {ms} ms."
