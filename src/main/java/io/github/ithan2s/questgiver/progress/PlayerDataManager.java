@@ -35,6 +35,11 @@ public final class PlayerDataManager {
 
     /** Called from AsyncPlayerPreLoginEvent: blocks the login thread (not the main thread) until loaded. */
     public boolean preload(UUID uuid, String name) {
+        if (cache.containsKey(uuid) && Bukkit.getPlayer(uuid) != null) {
+            // Logging in again while still online: keep the live session's data (it is saved when the old
+            // session quits, and the new session reloads it then).
+            return true;
+        }
         try {
             PlayerData data = storage.supply(c -> parse(Storage.loadPlayer(c, uuid), uuid, name))
                     .get(15, TimeUnit.SECONDS);

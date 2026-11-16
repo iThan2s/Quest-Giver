@@ -150,6 +150,18 @@ public final class QuestService {
         return refs(p).stream().map(r -> r.quest().questId).toList();
     }
 
+    /**
+     * Active quests counting toward the cap. Quests missing from quests.yml (e.g. after a typo and /quest reload)
+     * keep their progress but don't take up a slot until the quest is back.
+     */
+    public int activeCount(Player p) {
+        int n = 0;
+        for (Ref r : refs(p)) {
+            if (registry().get(r.quest().questId) != null) n++;
+        }
+        return n;
+    }
+
     public int cap(Player p) {
         List<Integer> limits = new ArrayList<>();
         for (PermissionAttachmentInfo info : p.getEffectivePermissions()) {
@@ -299,10 +311,14 @@ public final class QuestService {
     public AcceptResult accept(Player p, QuestDefinition q, boolean forSquad, String giverId, String giverName,
                                long timeLimitMs) {
         PlayerData d = data().get(p);
-        if (refs(p).size() >= cap(p)) {
+        if (activeCount(p) >= cap(p)) {
             return AcceptResult.CAP_REACHED;
         }
         Squad s = squads().of(p.getUniqueId());
+        // Guards against stale menus (double clicks): never hold the same quest twice, solo never repeats.
+        if (activeIds(p).contains(q.id()) || (!forSquad && !q.isBounty() && isCompleted(d, q))) {
+            return AcceptResult.NOT_ELIGIBLE;
+        }
         if (q.isSquadOnly() && !forSquad) {
             return AcceptResult.SQUAD_REQUIRED;
         }
@@ -1067,6 +1083,26 @@ public final class QuestService {
             for (ActiveQuest aq : new ArrayList<>(s.active)) {
                 if (run.equals(aq.eventRun)) {
                     fail(new Ref(aq, null, s), registry().get(aq.questId), "quest.event-ended");
+                }
+            }
+        }
+    }
+
+    /** Removes squad and online players' quests of events that are no longer running (startup and reload). */
+    public void sweepEndedEvents() {
+        for (Squad s : squads().all()) {
+            for (ActiveQuest aq : new ArrayList<>(s.active)) {
+                if (aq.eventRun != null && !events().isRunActive(aq.eventRun)) {
+                    fail(new Ref(aq, null, s), registry().get(aq.questId), "quest.event-ended");
+                }
+            }
+        }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            PlayerData d = data().getIfLoaded(p.getUniqueId());
+            if (d == null) continue;
+            for (ActiveQuest aq : new ArrayList<>(d.active)) {
+                if (aq.eventRun != null && !events().isRunActive(aq.eventRun)) {
+                    fail(new Ref(aq, d, null), registry().get(aq.questId), "quest.event-ended");
                 }
             }
         }

@@ -100,13 +100,16 @@ public final class GiverManager implements Listener {
         }
     }
 
-    /** Greets a player when they open the menu, at most once a minute. */
-    public void greet(Player player, GiverDefinition giver) {
+    /**
+     * Speaks when a player opens the menu, at most once a minute: an "offer" line when there are quests on offer,
+     * otherwise a "greeting".
+     */
+    public void greet(Player player, GiverDefinition giver, boolean hasOffers) {
         long now = System.currentTimeMillis();
         Long last = lastGreeting.get(player.getUniqueId());
         if (last == null || now - last > 60_000) {
             lastGreeting.put(player.getUniqueId(), now);
-            say(player, giver, "greeting", "player", player.getName());
+            say(player, giver, hasOffers ? "offer" : "greeting", "player", player.getName());
         }
     }
 
@@ -187,6 +190,7 @@ public final class GiverManager implements Listener {
         boolean wrongType = (d.type == GiverDefinition.Type.VILLAGER) != (e instanceof Villager);
         if (wrongType) {
             spawnBody(d);
+            save();
             return;
         }
         NpcFactory.rename(e, d.name);

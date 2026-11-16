@@ -144,7 +144,7 @@ public final class GiverMenu extends Menu {
         head.editMeta(org.bukkit.inventory.meta.SkullMeta.class, m -> m.setOwningPlayer(player));
         List<String> lore = msg.list("menu.stats-lore", "completed", d.completedCount,
                 "earned", Money.format(d.questEarnings), "reputation", d.reputation.getOrDefault(giver.id, 0),
-                "total-reputation", d.totalReputation(), "active", qs.refs(player).size(), "cap", qs.cap(player));
+                "total-reputation", d.totalReputation(), "active", qs.activeCount(player), "cap", qs.cap(player));
         return Items.named(head, io.github.ithan2s.questgiver.util.Text.item(msg.raw("menu.stats", "player",
                 player.getName())), io.github.ithan2s.questgiver.util.Text.itemLines(lore));
     }

@@ -37,6 +37,8 @@ dependencies {
     }
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
+    // Same YAML parser version Paper ships, for the quests.yml catalog test.
+    testImplementation("org.yaml:snakeyaml:2.2")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

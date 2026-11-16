@@ -63,7 +63,7 @@ public final class PlayerCommands {
             msg.send(p, "quest.none-active");
             return;
         }
-        msg.sendPlain(p, "quest.list-header", "count", refs.size(), "cap", qs.cap(p));
+        msg.sendPlain(p, "quest.list-header", "count", qs.activeCount(p), "cap", qs.cap(p));
         long now = System.currentTimeMillis();
         for (QuestService.Ref r : refs) {
             QuestDefinition q = plugin.quests().get(r.quest().questId);

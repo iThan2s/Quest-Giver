@@ -35,6 +35,7 @@ public final class EventManager {
     private final Map<String, Definition> definitions = new LinkedHashMap<>();
     private final Map<String, Override> overrides = new HashMap<>();
     private Map<String, Integer> active = new HashMap<>();
+    private boolean loadedOnce;
     private BiConsumer<Definition, String> onStart = (d, run) -> { };
     private BiConsumer<Definition, String> onEnd = (d, run) -> { };
 
@@ -72,8 +73,15 @@ public final class EventManager {
         } catch (Exception e) {
             logger.warning("Could not read event state: " + e.getMessage());
         }
-        // Silent recompute: don't fire start/end callbacks for state carried over a restart.
-        active = compute();
+        if (loadedOnce) {
+            // /quest reload: dates may have changed, so fire start/end like the minute timer would.
+            tick();
+        } else {
+            // First load: no announcements for state carried over a restart. Quests of events that ended while
+            // the server was off are swept by QuestService.sweepEndedEvents and on each player's login.
+            active = compute();
+            loadedOnce = true;
+        }
     }
 
     public Map<String, Definition> definitions() {

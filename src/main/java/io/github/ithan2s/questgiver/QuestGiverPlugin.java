@@ -156,7 +156,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
                 messages.send(player, "general.no-permission");
                 return;
             }
-            givers.greet(player, giver);
+            givers.greet(player, giver, questService.offers(player, giver).stream().anyMatch(java.util.Objects::nonNull));
             GiverMenu.open(this, player, giver);
         });
         for (Player online : Bukkit.getOnlinePlayers()) {
@@ -193,6 +193,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
                     questService.onEventEnded(run);
                     Bukkit.getOnlinePlayers().forEach(p -> messages.send(p, "event.ended", "event", def.displayName()));
                 });
+        questService.sweepEndedEvents();
         getLogger().info("QuestGiver enabled.");
     }
 
@@ -270,6 +271,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         loadFiles();
         loadQuests();
         events.load(getConfig());
+        questService.sweepEndedEvents();
         configureItemTags();
         rewards.economy().hook();
         tracker.refreshAll();
