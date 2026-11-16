@@ -55,6 +55,35 @@ public final class Squad {
         return members.size();
     }
 
+    /** Result of removing a member. {@code newLeader} is set when the leader left and someone was promoted. */
+    public record Removal(boolean wasLeader, String newLeader, boolean empty) {
+    }
+
+    /**
+     * Removes a member: they leave every locked roster (losing their share), the next member by join order is
+     * promoted if they led, and squad quests nobody is left on are dropped.
+     */
+    public Removal remove(UUID member) {
+        String id = member.toString();
+        boolean wasLeader = isLeader(member);
+        members.remove(id);
+        for (ActiveQuest aq : active) {
+            if (aq.participants != null) {
+                aq.participants.remove(id);
+            }
+        }
+        active.removeIf(aq -> aq.participants != null && aq.participants.isEmpty());
+        if (members.isEmpty()) {
+            leader = null;
+            return new Removal(wasLeader, null, true);
+        }
+        if (wasLeader) {
+            leader = members.getFirst();
+            return new Removal(true, leader, false);
+        }
+        return new Removal(false, null, false);
+    }
+
     public void markDirty() {
         dirty = true;
     }

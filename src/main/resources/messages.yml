@@ -25,6 +25,13 @@ usage:
   track: /quest track <quest>
   abandon: /quest abandon <quest>
   list: /quest list
+  squad-assemble: /quest squad assemble <name>
+  squad-add: /quest squad add <player>
+  squad-accept: /quest squad accept [squad]
+  squad-leave: /quest squad leave
+  squad-kick: /quest squad kick <player>
+  squad-list: /quest squad list
+  squad-disband: /quest squad disband
 admin:
   reloaded: '&aReloaded QuestGiver in {ms} ms.'
 giver:
@@ -192,6 +199,38 @@ squad:
   member-missed-range: '&e{player}&7 was too far away and gets no reward.'
   missed-out-of-range: '&cYour squad handed in &f{quest}&c, but you were too far away to share the reward.'
   offline-reward: '&aWhile you were away, your squad &d{squad}&a handed in &f{quest}&a. Here''s your share!'
+  prefix: '&8[&dSquad&8] &7'
+  already-in: '&cYou''re already in a squad. Leave it first with /quest squad leave.'
+  not-in: '&cYou''re not in a squad.'
+  bad-name: '&cSquad names are 2-16 letters, numbers, spaces, - or _.'
+  name-taken: '&cThe name &f{squad}&c is already taken.'
+  assembled: '&aYou assembled the squad &d{squad}&a and lead it. Invite players with /quest squad add <player>.'
+  player-offline: '&c{player} isn''t online.'
+  already-member: '&c{player} is already in your squad.'
+  target-in-squad: '&c{player} is already in another squad.'
+  full: '&cThe squad is full (max {max} members).'
+  invite-sent: '&aInvited &f{player}&a. The invite expires in a couple of minutes.'
+  invite-received: '&d{leader}&7 invited you to the squad &d{squad}&7. &a&l[Click to join]&7 or type /quest squad accept'
+  invite-hover: '&aJoin the squad'
+  no-invite: '&cYou don''t have a valid squad invite.'
+  joined: '&a{player} joined the squad!'
+  joined-locked: '&7The squad''s current quests were locked to the members who accepted them; you''ll share the next ones.'
+  left: '&e{player} left the squad.'
+  kicked: '&e{player} was removed from the squad.'
+  you-left: '&7You left &d{squad}&7.'
+  you-were-kicked: '&cYou were removed from the squad &d{squad}&c.'
+  not-member: '&c{player} isn''t in your squad.'
+  promoted: '&d{player}&7 is now the squad leader.'
+  disbanded: '&cThe squad &d{squad}&c was disbanded. Its quests are cancelled.'
+  list-header: '&d&lSquad {squad} &7({size}/{max})'
+  list-leader: ' &6★ &f{player} &7{status}'
+  list-member: ' &7• &f{player} &7{status}'
+  online: '&a(online)'
+  offline: '&8(offline)'
+  list-quests: '&6Squad quests:'
+  list-quest: ' &e{quest}&7: {progress} &8({members} members) {you}'
+  list-you-in: '&a[you''re in]'
+  list-you-out: '&8[not on roster]'
 tier:
   easy: '&aEasy'
   medium: '&eMedium'
