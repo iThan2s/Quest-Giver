@@ -3,8 +3,12 @@ package io.github.ithan2s.questgiver;
 import io.github.ithan2s.questgiver.command.CommandTree;
 import io.github.ithan2s.questgiver.command.Commands;
 import io.github.ithan2s.questgiver.config.Messages;
+import io.github.ithan2s.questgiver.npc.GiverManager;
+import io.github.ithan2s.questgiver.npc.NpcListener;
+import io.github.ithan2s.questgiver.npc.SkinService;
 import io.github.ithan2s.questgiver.progress.PlayerDataManager;
 import io.github.ithan2s.questgiver.storage.Storage;
+import io.github.ithan2s.questgiver.util.Keys;
 import io.github.ithan2s.questgiver.util.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,12 +29,16 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     private final Messages messages = new Messages(getLogger());
     private Storage storage;
     private PlayerDataManager data;
+    private SkinService skins;
+    private GiverManager givers;
+    private NpcListener npcListener;
     private YamlConfiguration questsYaml;
     private YamlConfiguration giversYaml;
 
     @Override
     public void onEnable() {
         Tasks.init(this);
+        Keys.init(this);
         saveBundled("config.yml");
         saveBundled("quests.yml");
         saveBundled("givers.yml");
@@ -47,7 +55,15 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
         }
         data = new PlayerDataManager(storage, getLogger());
 
-        getServer().getPluginManager().registerEvents(this, this);
+        skins = new SkinService(storage);
+        givers = new GiverManager(this, skins);
+        givers.load(giversYaml);
+        npcListener = new NpcListener();
+
+        var pm = getServer().getPluginManager();
+        pm.registerEvents(this, this);
+        pm.registerEvents(givers, this);
+        pm.registerEvents(npcListener, this);
         for (Player online : Bukkit.getOnlinePlayers()) {
             data.loadBlocking(online.getUniqueId(), online.getName());
         }
@@ -58,6 +74,7 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
         long autosave = Math.max(10, getConfig().getLong("storage.autosave-seconds", 60)) * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveDirty, autosave, autosave);
+        Bukkit.getScheduler().runTaskTimer(this, givers::ensureBodies, 40L, 100L);
         getLogger().info("QuestGiver enabled.");
     }
 
@@ -88,6 +105,9 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
     public void reloadAll() {
         data.saveAll();
         loadFiles();
+        givers.load(giversYaml);
+        givers.all().forEach(givers::refreshBody);
+        givers.ensureBodies();
     }
 
     // ---- Player lifecycle ----
@@ -124,6 +144,18 @@ public final class QuestGiverPlugin extends JavaPlugin implements Listener {
 
     public PlayerDataManager data() {
         return data;
+    }
+
+    public SkinService skins() {
+        return skins;
+    }
+
+    public GiverManager givers() {
+        return givers;
+    }
+
+    public NpcListener npcListener() {
+        return npcListener;
     }
 
     public YamlConfiguration questsYaml() {

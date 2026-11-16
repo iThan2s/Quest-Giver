@@ -1,1 +1,26 @@
-# placeholder
+# ---------------------------------------------------------------------------------------------------------------
+#  QuestGiver - givers.yml
+#  Town quest-givers. You normally don't edit this by hand: use the in-game commands
+#    /quest giver create [id]       place a new giver where you stand
+#    /quest giver name <name>       colour codes allowed, e.g. &6&lQuest Master
+#    /quest giver skin <player>     copy a player's skin (e.g. Notch), looked up off the main thread
+#    /quest giver type <player|villager>
+#    /quest giver move | spawn | despawn | remove | select <id> | list
+#  The plugin rewrites this file when you use those commands. You can still edit names, pools and dialogue here,
+#  then run /quest reload.
+#
+#  Per giver:
+#    type:                 player (vanilla mannequin with a skin) or villager
+#    name:                 display name above the NPC
+#    skin:                 player name the skin was copied from; skin-texture/skin-signature are the cached skin
+#    pool:                 which quests this giver offers (matches "pool:" in quests.yml). "town" by default.
+#                          Add more givers with their own pool (e.g. hunter, miner) to split quests between them.
+#    villager-profession:  look of villager-type givers (librarian, cleric, cartographer, ...)
+#    spawned:              false after /quest giver despawn
+#    location / entity:    where the NPC stands and the entity it is currently bound to
+#    dialogue:             lines picked at random. Leave a list empty to use the defaults from messages.yml.
+#                          Keys: greeting, offer, accept, turn-in, empty-handed. Placeholders: {player}, {quest}
+#
+#  No player data is ever stored here or on the NPC entity, so removing and respawning a giver resets nothing.
+# ---------------------------------------------------------------------------------------------------------------
+givers: {}

@@ -1,6 +1,7 @@
 package io.github.ithan2s.questgiver.command;
 
 import io.github.ithan2s.questgiver.QuestGiverPlugin;
+import io.github.ithan2s.questgiver.npc.GiverCommands;
 
 /** Registers every /quest subcommand. */
 public final class Commands {
@@ -14,5 +15,6 @@ public final class Commands {
             plugin.reloadAll();
             plugin.messages().send(sender, "admin.reloaded", "ms", System.currentTimeMillis() - start);
         });
+        GiverCommands.register(plugin, tree);
     }
 }

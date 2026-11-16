@@ -1,15 +1,68 @@
-prefix: "&8[&6Quests&8] &7"
+prefix: '&8[&6Quests&8] &7'
 general:
-  no-permission: "&cYou don't have permission to do that."
-  players-only: "&cOnly players can use this command."
-  usage: "&cUsage: &f{usage}"
-  error: "&cSomething went wrong. Check the server console."
-  data-load-failed: "&cYour quest data could not be loaded. Please try again in a moment."
+  no-permission: '&cYou don''t have permission to do that.'
+  players-only: '&cOnly players can use this command.'
+  usage: '&cUsage: &f{usage}'
+  error: '&cSomething went wrong. Check the server console.'
+  data-load-failed: '&cYour quest data could not be loaded. Please try again in a moment.'
 help:
-  header: "&6&lQuests &7- commands"
-  line: " &e{usage}"
+  header: '&6&lQuests &7- commands'
+  line: ' &e{usage}'
 usage:
-  help: "/quest help"
-  reload: "/quest reload"
+  help: /quest help
+  reload: /quest reload
+  giver-create: /quest giver create [id]
+  giver-name: /quest giver name <name>
+  giver-skin: /quest giver skin <player>
+  giver-type: /quest giver type <player|villager>
+  giver-move: /quest giver move
+  giver-spawn: /quest giver spawn
+  giver-despawn: /quest giver despawn
+  giver-remove: /quest giver remove
+  giver-select: /quest giver select <id>
+  giver-list: /quest giver list
 admin:
-  reloaded: "&aReloaded QuestGiver in {ms} ms."
+  reloaded: '&aReloaded QuestGiver in {ms} ms.'
+giver:
+  bad-id: '&cGiver ids may only use a-z, 0-9, _ and - (max 32 characters).'
+  exists: '&cA giver called &f{giver}&c already exists.'
+  created: '&aCreated quest-giver &f{giver}&a here. It is now selected for /quest giver commands.'
+  renamed: '&aRenamed &f{giver}&a to &r{name}&a.'
+  skin-looking: '&7Looking up the skin of &f{player}&7...'
+  skin-set: '&aGave &f{giver}&a the skin of &f{player}&a.'
+  skin-failed: '&cCould not find a skin for &f{player}&c.'
+  type-set: '&aQuest-giver &f{giver}&a now uses the &f{type}&a model.'
+  moved: '&aMoved &f{giver}&a to your position.'
+  spawned: '&aSpawned &f{giver}&a at your position.'
+  despawned: '&aDespawned &f{giver}&a. Player progress is untouched; use /quest giver spawn to bring it back.'
+  removed: '&aRemoved quest-giver &f{giver}&a. Player progress is untouched.'
+  selected: '&aSelected quest-giver &f{giver}&a.'
+  unknown: '&cThere is no quest-giver called &f{giver}&c.'
+  none: '&cThere are no quest-givers yet. Use /quest giver create.'
+  select-first: '&cSeveral quest-givers exist. Stand near one or use /quest giver select <id>.'
+  list-header: '&6Quest-givers:'
+  list-line: ' &e{giver} &7- &r{name} &7({type}, pool {pool}) &8@ {world} {x} {y} {z} &7{state}'
+  state-spawned: '&aspawned'
+  state-despawned: '&cdespawned'
+dialogue:
+  format: '&r{giver}&7: &f{line}'
+  town:
+    greeting:
+    - Ah, {player}! Looking for work?
+    - Back again, {player}? I've got jobs that need doing.
+    - Adventure awaits, {player}. Take your pick.
+    offer:
+    - This one's yours if you want it.
+    - A fine choice. Think you can handle it?
+    accept:
+    - Excellent! Come back when it's done.
+    - Good luck out there, {player}. Don't die... it costs you.
+    - I knew I could count on you.
+    turn-in:
+    - Splendid work, {player}! Here's your reward.
+    - You actually did it! Take this, you've earned it.
+    - Another job well done. The town thanks you.
+    empty-handed:
+    - You don't have what I asked for yet, {player}.
+    - Come back when you've finished the job.
+    - Empty-handed? That won't do.
